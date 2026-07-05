@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { Request, Response, NextFunction } from 'express'
+import path from 'path'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth'
 import todoRoutes from './routes/todos'
@@ -12,10 +13,26 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const isProduction = process.env.NODE_ENV === 'production'
 
 // 中间件
-app.use(cors({ origin: 'http://localhost:5173' }))
+const corsOrigin = isProduction ? true : 'http://localhost:5173'
+app.use(cors({ origin: corsOrigin }))
 app.use(express.json())
+
+// 生产环境下提供前端静态文件
+if (isProduction) {
+  // __dirname 在生产环境是 server/dist，需要回到项目根目录找 dist/
+  const clientDistPath = path.resolve(__dirname, '../../dist')
+  app.use(express.static(clientDistPath))
+
+  // SPA fallback：所有非 API 请求都返回 index.html
+  app.get('*', (req: Request, res: Response) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.resolve(clientDistPath, 'index.html'))
+    }
+  })
+}
 
 // 健康检查
 app.get('/api/health', (_req: Request, res: Response) => {

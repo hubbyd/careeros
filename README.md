@@ -25,12 +25,12 @@
 
 ### 后端
 - Node.js + Express + TypeScript
-- Prisma ORM + SQLite
+- Prisma ORM + **PostgreSQL**
 - JWT 认证
 - bcryptjs（密码加密）
 - Zod（参数验证）
 
-## 快速启动
+## 快速启动（本地开发）
 
 ### 后端（端口 3002）
 ```bash
@@ -56,26 +56,96 @@ cd server && npm run build # 构建后端 → dist/
 
 ### `server/.env`
 ```
-DATABASE_URL="file:./jobsprint.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/jobsprint"
 JWT_SECRET="jobsprint-super-secret-key-2024"
 PORT=3002
 NODE_ENV=development
 ```
 
-### `frontend/.env`（可选）
-```
-VITE_API_URL=http://localhost:3002/api
-```
+> **生产环境**：不需要 `.env` 文件，Render 会通过环境变量注入 `DATABASE_URL` 和 `JWT_SECRET`。
 
 ## 推送 GitHub
 
+### 方式一：在网页上创建仓库（推荐）
+
+1. 打开 [GitHub](https://github.com)，登录
+2. 点击右上角 `+` → `New repository`
+3. 仓库名填 `jobsprint`，**不要**勾选 `Initialize with README`
+4. 点击 `Create repository`
+5. 复制仓库 URL（类似 `https://github.com/hubbyd/jobsprint.git`）
+
+### 方式二：用 Personal Access Token 推送
+
+1. 打开 [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
+2. 点击 `Generate new token (classic)`
+3. 勾选 `repo` 权限，点击 `Generate token`
+4. 复制生成的 token（只显示一次）
+
+### 推送命令
+
 ```bash
-# 1. 在 GitHub 创建新仓库（名：jobsprint）
-# 2. 关联远程仓库并推送
-git remote add origin https://github.com/YOUR_USERNAME/jobsprint.git
-git branch -M main
+# 如果还没关联远程仓库
+git remote set-url origin https://github.com/hubbyd/jobsprint.git
+
+# 推送（会提示输入用户名和密码）
+# 用户名：你的 GitHub 用户名
+# 密码：粘贴刚才复制的 Personal Access Token（不是 GitHub 登录密码）
 git push -u origin main
 ```
+
+> **Windows 用户**：如果在 CMD 里推送失败，可以用 [GitHub Desktop](https://desktop.github.com/) 或 [Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager) 来认证。
+
+## 部署到 Render
+
+### 一键部署步骤
+
+1. **推送代码到 GitHub**（参考上面步骤）
+
+2. **登录 [Render](https://render.com)**
+   - 用 GitHub 账号登录
+
+3. **创建 PostgreSQL 数据库**
+   - 点击 `New +` → `PostgreSQL`
+   - Name: `jobsprint-db`
+   - Plan: `Free`
+   - 点击 `Create Database`
+   - 复制 `Internal Database URL`（后面要用）
+
+4. **创建 Web Service**
+   - 点击 `New +` → `Web Service`
+   - 连接你的 GitHub 仓库 `jobsprint`
+   - 配置：
+     - **Name**: `jobsprint`
+     - **Root Directory**: `server`
+     - **Runtime**: `Node`
+     - **Build Command**:
+       ```bash
+       cd .. && npm install && npm run build
+       npm install && npm run build
+       ```
+     - **Start Command**: `npm start`
+   - **环境变量**：
+     - `NODE_ENV`: `production`
+     - `JWT_SECRET`: 点击 `Generate` 自动生成
+     - `DATABASE_URL`: 粘贴刚才复制的 PostgreSQL Internal Database URL
+   - 点击 `Create Web Service`
+
+5. **等待部署完成**（约 2-3 分钟）
+
+6. **访问你的 App**
+   - Render 会给你一个 `https://jobsprint.onrender.com` 的地址
+   - 打开即可使用！
+
+### 使用 render.yaml 一键部署（高级）
+
+如果你把 `render.yaml` 推送到仓库，Render 可以自动读取配置：
+
+1. 推送代码到 GitHub
+2. 在 Render 上点击 `New +` → `Blueprint`
+3. 选择 `jobsprint` 仓库
+4. Render 会自动创建 Web Service 和数据库
+
+> **注意**：免费版 Render 的 Web Service 15 分钟无访问会休眠，下次访问需要等待约 30 秒唤醒。
 
 ## 项目结构
 
@@ -95,7 +165,8 @@ jobsprint/
 │   │   └── utils/       # Prisma 客户端
 │   └── prisma/          # 数据库 Schema
 ├── dist/                 # 前端构建产物
-└── server/prisma/        # SQLite 数据库
+├── render.yaml           # Render 部署配置
+└── README.md
 ```
 
 ## 已完成的后端 API
