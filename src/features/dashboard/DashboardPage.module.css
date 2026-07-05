@@ -1,0 +1,268 @@
+.page {
+  padding: 0 0 16px;
+}
+
+/* === Hero Card === */
+.heroCard {
+  position: relative;
+  margin: 12px 12px 0;
+  padding: 24px 20px;
+  border-radius: var(--r-xl);
+  background: var(--gradient-energy);
+  color: white;
+  overflow: hidden;
+}
+
+.heroBg1, .heroBg2 {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.heroBg1 {
+  width: 200px;
+  height: 200px;
+  top: -60px;
+  right: -40px;
+}
+
+.heroBg2 {
+  width: 120px;
+  height: 120px;
+  bottom: -30px;
+  left: -20px;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.heroGreeting {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+
+.heroSub {
+  font-size: var(--fs-sm);
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.streakBadge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  backdrop-filter: blur(4px);
+}
+
+.fire {
+  font-size: 18px;
+  animation: fireWiggle 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireWiggle {
+  from { transform: scale(1) rotate(-5deg); }
+  to { transform: scale(1.15) rotate(5deg); }
+}
+
+.streakNum {
+  font-size: var(--fs-xl);
+  font-weight: 900;
+}
+
+.streakLabel {
+  font-size: var(--fs-xs);
+  opacity: 0.9;
+}
+
+.heroStats {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--r-md);
+  padding: 12px 0;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statNum {
+  font-size: var(--fs-xl);
+  font-weight: 900;
+}
+
+.statLabel {
+  font-size: var(--fs-xs);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* === Quick Grid === */
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px 12px 0;
+}
+
+.quickItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 200ms ease;
+}
+
+.quickItem:active {
+  transform: scale(0.96);
+}
+
+.quickIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.quickLabel {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* === Section === */
+.section {
+  padding: 16px 12px 0;
+}
+
+.sectionTitle {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--dark);
+}
+
+/* === Todo List === */
+.todoList {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+}
+
+.todoItem:last-child {
+  border-bottom: none;
+}
+
+.todoCheck {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.todoTitle {
+  font-size: var(--fs-base);
+  transition: all 200ms;
+}
+
+.todoDone {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+/* === Progress Card === */
+.progressCard {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.progressPct {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.progressBarBg {
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--r-full);
+  transition: width 800ms ease;
+}
+
+/* === Quote Card === */
+.quoteCard {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.quoteIcon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.quoteText {
+  font-size: var(--fs-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

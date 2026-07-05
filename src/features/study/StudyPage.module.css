@@ -1,0 +1,264 @@
+/* === Layout === */
+.page {
+  padding: 0 0 80px;
+}
+
+/* === Hero === */
+.hero {
+  margin: 12px 12px 0;
+  padding: 20px;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--r-xl);
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.streakNum {
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+}
+
+.streakLabel {
+  font-size: var(--fs-sm);
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.checkInBtn {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: var(--r-full);
+  border: none;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.streakSub {
+  font-size: var(--fs-xs);
+  opacity: 0.75;
+  margin-top: 8px;
+}
+
+/* === Pomo Card === */
+.pomoCard {
+  margin: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 200ms;
+}
+
+.pomoCard:active { transform: scale(0.98); }
+
+.pomoLeft { display: flex; align-items: center; gap: 12px; }
+.pomoIcon { font-size: 28px; }
+.pomoTitle { font-weight: 700; font-size: var(--fs-base); }
+.pomoSub { font-size: var(--fs-xs); color: var(--text-secondary); margin-top: 2px; }
+.pomoArrow { color: var(--text-tertiary); font-size: 18px; }
+
+/* === Section === */
+.section { padding: 16px 12px 0; }
+
+.sectionTitle {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--dark);
+}
+
+/* === Plan List === */
+.planList {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.planItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+}
+
+.planItem:last-child { border-bottom: none; }
+
+.planCheck { width: 20px; height: 20px; accent-color: var(--primary); flex-shrink: 0; }
+.planTitle { flex: 1; font-size: var(--fs-base); transition: all 200ms; }
+.planDone { text-decoration: line-through; color: var(--text-tertiary); }
+.planSubject {
+  font-size: var(--fs-xs);
+  background: var(--bg-soft);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* === Subject Progress === */
+.subjectList { display: flex; flex-direction: column; gap: 10px; }
+
+.subjectRow { display: flex; align-items: center; gap: 8px; }
+
+.subjectName {
+  width: 48px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.subjectBarBg {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.subjectBarFill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: var(--r-full);
+  transition: width 800ms ease;
+}
+
+.subjectPct {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* === Badge Grid === */
+.badgeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.badgeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 4px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.badgeLocked { opacity: 0.45; }
+
+.badgeEmoji { font-size: 28px; }
+.badgeLabel { font-size: var(--fs-xs); color: var(--text-secondary); font-weight: 600; }
+
+/* === Modal === */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.pomoModal {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  width: calc(100% - 48px);
+  max-width: 340px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h3 { font-size: var(--fs-lg); font-weight: 800; }
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timerDisplay {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.timerText {
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.timerBtns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.timerBtn {
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: var(--r-full);
+  border: none;
+  cursor: pointer;
+  font-size: var(--fs-base);
+}
+
+.timerBtnSecondary {
+  background: var(--bg-soft);
+  color: var(--text);
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: var(--r-full);
+  border: none;
+  cursor: pointer;
+  font-size: var(--fs-base);
+}
+
+.completedMsg {
+  text-align: center;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--success);
+  margin: 12px 0;
+  animation: fadeIn 400ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

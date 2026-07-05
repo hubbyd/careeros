@@ -1,0 +1,74 @@
+.tabBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  z-index: 100;
+}
+
+@media (min-width: 440px) {
+  .tabBar {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 390px;
+    border-radius: 0 0 28px 28px;
+    border-left: 1px solid var(--border-soft);
+    border-right: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+}
+
+.tabItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: var(--r-md);
+  transition: all 250ms ease;
+  position: relative;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.tabItemActive {
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.tabIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tabLabel {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.streakBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--accent-pink);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
