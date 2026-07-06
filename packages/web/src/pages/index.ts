@@ -1,0 +1,13 @@
+export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
+export { ForgotPasswordPage } from './ForgotPasswordPage';
+export { ResetPasswordPage } from './ResetPasswordPage';
+export { NotificationPage } from './NotificationPage';
+export { AiChatPage } from './AiChatPage';
+export { AdminPage } from './AdminPage';
+export { HomePage } from './HomePage';
+export { CareerPage } from './CareerPage';
+export { ResumePage } from './ResumePage';
+export { InterviewPage } from './InterviewPage';
+export { LearningPage } from './LearningPage';
+export { ProfilePage } from './ProfilePage';

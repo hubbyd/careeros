@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  phone        String?
+  major        String?
+  education    String?
+  role         String   @default("user")
+  status       String   @default("active")
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  CareerAssessment CareerAssessment[]
+  Resume           Resume[]
+  InterviewSession InterviewSession[]
+  LearningPlan     LearningPlan[]
+  GrowthRecord     GrowthRecord[]
+  AiChatSession    AiChatSession[]
+  Notification     Notification[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+}
+
+model CareerAssessment {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  assessmentType String
+  inputData      String
+  resultData     String
+  score          Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([assessmentType])
+}
+
+model Resume {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  fileName   String
+  fileUrl    String
+  parsedData String
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model InterviewSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  jobTitle  String
+  level     String
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  InterviewQuestion InterviewQuestion[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model InterviewQuestion {
+  id           Int      @id @default(autoincrement())
+  sessionId    Int
+  question     String
+  answer       String?
+  evaluation   String?
+  nextQuestion String?
+  createdAt    DateTime @default(now())
+
+  session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model LearningPlan {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  planData    String
+  progress    Int      @default(0)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model GrowthRecord {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  content   String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model AiChatSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  chatType  String
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  AiChatMessage AiChatMessage[]
+
+  @@index([userId])
+  @@index([chatType])
+}
+
+model AiChatMessage {
+  id        Int      @id @default(autoincrement())
+  sessionId Int
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  session AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String
+  title     String
+  content   String
+  isRead    Int      @default(0)
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model Prompt {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  name      String
+  category  String
+  template  String
+  variables String
+  version   String   @default("1.0.0")
+  isActive  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+}
