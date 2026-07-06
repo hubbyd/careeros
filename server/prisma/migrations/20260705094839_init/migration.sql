@@ -5,6 +5,7 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "avatar" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'user',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -79,6 +80,59 @@ CREATE TABLE "CareerAssessment" (
     CONSTRAINT "CareerAssessment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "Resume" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "targetJob" TEXT,
+    "analysisScore" INTEGER NOT NULL DEFAULT 0,
+    "analysisResult" TEXT,
+    "optimizedContent" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Resume_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "InterviewSession" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "jobTitle" TEXT NOT NULL,
+    "company" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'in_progress',
+    "questions" TEXT NOT NULL,
+    "answers" TEXT NOT NULL,
+    "report" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "InterviewSession_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "LearningPlan" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "targetJob" TEXT NOT NULL,
+    "timeline" TEXT NOT NULL,
+    "phases" TEXT NOT NULL,
+    "tasks" TEXT NOT NULL,
+    "progress" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "LearningPlan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "GrowthRecord" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "GrowthRecord_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -95,4 +149,16 @@ CREATE UNIQUE INDEX "StudyLog_userId_date_key" ON "StudyLog"("userId", "date");
 CREATE INDEX "Question_userId_category_idx" ON "Question"("userId", "category");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CareerAssessment_userId_key" ON "CareerAssessment"("userId");
+CREATE INDEX "CareerAssessment_userId_idx" ON "CareerAssessment"("userId");
+
+-- CreateIndex
+CREATE INDEX "Resume_userId_idx" ON "Resume"("userId");
+
+-- CreateIndex
+CREATE INDEX "InterviewSession_userId_status_idx" ON "InterviewSession"("userId", "status");
+
+-- CreateIndex
+CREATE INDEX "LearningPlan_userId_idx" ON "LearningPlan"("userId");
+
+-- CreateIndex
+CREATE INDEX "GrowthRecord_userId_idx" ON "GrowthRecord"("userId");
