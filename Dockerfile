@@ -10,19 +10,21 @@ RUN npm ci
 COPY . .
 
 RUN npm run build
-RUN cd server && npm run build
+
+RUN cd server && npm ci --only=production && npm run build
 RUN npx prisma generate --schema server/prisma/schema.prisma
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/server/dist ./dist
-COPY --from=builder /app/server/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server/dist ./server/dist
+COPY --from=builder /app/server/prisma ./server/prisma
+COPY --from=builder /app/server/node_modules ./server/node_modules
 
 ENV NODE_ENV=production
 
 EXPOSE 10000
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "server/dist/index.js"]
