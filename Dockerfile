@@ -11,8 +11,9 @@ COPY . .
 
 RUN npm run build
 
-RUN cd server && npm ci && npm run build
-RUN npx prisma generate --schema server/prisma/schema.prisma
+RUN cd server && npm ci
+RUN cd server && npx prisma generate --schema prisma/schema.prisma
+RUN cd server && npm run build
 
 FROM node:18-alpine
 
