@@ -2,7 +2,7 @@ name = "careeros-web"
 compatibility_date = "2024-01-01"
 
 [build]
-command = "cd packages/web && npm install && npm run build"
+command = "npm install && npm run build -w packages/web"
 publish = "packages/web/dist"
 
 [env.production]
@@ -10,7 +10,7 @@ node_compat = true
 
 [[redirects]]
 source = "/api/*"
-destination = "https://careeros-backend.onrender.com/api/:splat"
+destination = "https://careeros-backend-8u66.onrender.com/api/:splat"
 status = 200
 
 [[redirects]]
