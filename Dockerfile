@@ -37,6 +37,8 @@ RUN mkdir -p /app/data
 ENV NODE_ENV=production
 ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
+COPY server/.env ./server/.env
+
 EXPOSE 10000
 
-CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "cd server && DATABASE_URL='file:/app/data/jobsprint.db' npx prisma migrate deploy && DATABASE_URL='file:/app/data/jobsprint.db' node dist/index.js"]
