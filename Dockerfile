@@ -2,6 +2,8 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
+ENV DATABASE_URL="file:/app/data/jobsprint.db"
+
 COPY package*.json ./
 COPY server/package*.json server/
 
@@ -41,4 +43,4 @@ ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "cd server && DATABASE_URL='file:/app/data/jobsprint.db' npx prisma migrate deploy && DATABASE_URL='file:/app/data/jobsprint.db' node dist/index.js"]
+CMD ["sh", "-c", "cd server && npx prisma migrate deploy --url 'file:/app/data/jobsprint.db' && DATABASE_URL='file:/app/data/jobsprint.db' node dist/index.js"]
