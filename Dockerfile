@@ -22,6 +22,8 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/server/prisma ./server/prisma
+COPY --from=builder /app/server/package.json ./server/package.json
+COPY --from=builder /app/server/package-lock.json ./server/package-lock.json
 
 RUN cd server && npm ci --only=production
 
