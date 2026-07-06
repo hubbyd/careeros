@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18 AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN cd server && npm ci
 RUN cd server && npx prisma generate --schema prisma/schema.prisma
 RUN cd server && npm run build
 
-FROM node:18-alpine
+FROM node:18-slim
 
 WORKDIR /app
 
