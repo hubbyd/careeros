@@ -37,7 +37,7 @@ RUN mkdir -p /app/data
 ENV NODE_ENV=production
 ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
-COPY server/.env ./server/.env
+
 
 EXPOSE 10000
 
