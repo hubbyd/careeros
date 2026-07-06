@@ -1,7 +1,8 @@
 // API 客户端 - 统一处理所有 HTTP 请求
-// 生产环境下用相对路径（前后端同域），开发环境下用完整 URL
 const isProduction = import.meta.env.PROD
-const API_BASE = isProduction ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:3002/api')
+const API_BASE = isProduction 
+  ? 'https://careeros-zvfg.onrender.com/api' 
+  : (import.meta.env.VITE_API_URL || 'http://localhost:3002/api')
 
 export interface ApiError {
   error: string
