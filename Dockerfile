@@ -25,6 +25,8 @@ COPY --from=builder /app/server/prisma ./server/prisma
 
 RUN cd server && npm ci --only=production
 
+RUN mkdir -p /app/data
+
 ENV NODE_ENV=production
 
 EXPOSE 10000
