@@ -1,8 +1,15 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai: OpenAI | null = null;
+
+function getOpenAI(): OpenAI | null {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openai;
+}
 
 interface CareerDiagnosisInput {
   skills: { name: string; level: number }[];
@@ -33,6 +40,17 @@ interface DiagnosisReport {
 }
 
 export async function analyzeCareerDiagnosis(input: CareerDiagnosisInput): Promise<DiagnosisReport> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      summary: 'AI 服务未配置，无法进行职业诊断。请在环境变量中配置 OPENAI_API_KEY。',
+      strengths: [],
+      weaknesses: [],
+      suggestions: [],
+      matches: [],
+    };
+  }
+
   const prompt = `你是一位资深的职业规划师。请根据以下用户信息进行职业诊断：
 
 用户信息：
@@ -65,7 +83,7 @@ export async function analyzeCareerDiagnosis(input: CareerDiagnosisInput): Promi
 
 请推荐3-5个最匹配的职业方向。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
@@ -92,6 +110,15 @@ interface ResumeAnalysis {
 }
 
 export async function analyzeResume(resumeText: string, targetJob?: string): Promise<ResumeAnalysis> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      score: 0,
+      dimensions: [],
+      suggestions: ['AI 服务未配置，无法进行简历分析。请在环境变量中配置 OPENAI_API_KEY。'],
+    };
+  }
+
   const prompt = `你是一位资深的HR和简历专家。请分析以下简历：
 
 ${resumeText}
@@ -113,7 +140,7 @@ ${resumeText}
 
 请给出专业的评价和具体的改进建议。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
@@ -132,6 +159,11 @@ ${resumeText}
 }
 
 export async function optimizeResume(resumeText: string, targetJob?: string): Promise<string> {
+  const client = getOpenAI();
+  if (!client) {
+    return 'AI 服务未配置，无法进行简历优化。请在环境变量中配置 OPENAI_API_KEY。';
+  }
+
   const prompt = `你是一位资深的简历优化专家。请优化以下简历，使其更符合目标岗位要求：
 
 原始简历：
@@ -148,7 +180,7 @@ ${resumeText}
 
 直接输出优化后的简历文本即可。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
@@ -164,6 +196,15 @@ interface InterviewQuestion {
 }
 
 export async function generateInterviewQuestion(jobTitle: string, company: string, questionType?: string): Promise<InterviewQuestion> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      question: 'AI 服务未配置，无法生成面试问题。请在环境变量中配置 OPENAI_API_KEY。',
+      questionType: '综合',
+      expectedPoints: [],
+    };
+  }
+
   const prompt = `你是一位资深的技术面试官。请为以下岗位生成一个面试问题：
 
 岗位：${jobTitle}
@@ -179,7 +220,7 @@ export async function generateInterviewQuestion(jobTitle: string, company: strin
 
 问题应该符合该岗位的真实面试难度。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.8,
@@ -205,6 +246,16 @@ interface InterviewFeedback {
 }
 
 export async function evaluateInterviewAnswer(question: string, answer: string, jobTitle: string): Promise<InterviewFeedback> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      score: 0,
+      feedback: 'AI 服务未配置，无法评价面试回答。请在环境变量中配置 OPENAI_API_KEY。',
+      improvements: [],
+      sampleAnswer: '',
+    };
+  }
+
   const prompt = `你是一位资深的技术面试官。请评价以下面试回答：
 
 问题：${question}
@@ -221,7 +272,7 @@ export async function evaluateInterviewAnswer(question: string, answer: string, 
 
 请给出专业、具体的评价和建议。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
@@ -249,6 +300,17 @@ interface InterviewReport {
 }
 
 export async function generateInterviewReport(questions: string[], answers: string[], feedbacks: string[], jobTitle: string): Promise<InterviewReport> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      summary: 'AI 服务未配置，无法生成面试报告。请在环境变量中配置 OPENAI_API_KEY。',
+      strengths: [],
+      weaknesses: [],
+      suggestions: [],
+      overallScore: 0,
+    };
+  }
+
   const prompt = `你是一位资深的技术面试官。请根据以下面试记录生成完整的面试报告：
 
 岗位：${jobTitle}
@@ -267,7 +329,7 @@ ${questions.map((q, i) => `问题${i + 1}: ${q}\n回答${i + 1}: ${answers[i]}\n
 
 请给出全面、专业的评价。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
@@ -301,6 +363,15 @@ interface LearningPlan {
 }
 
 export async function generateLearningPlan(targetJob: string, timeline: string, currentSkills: string[]): Promise<LearningPlan> {
+  const client = getOpenAI();
+  if (!client) {
+    return {
+      phases: [],
+      milestones: [],
+      resources: ['AI 服务未配置，无法生成学习计划。请在环境变量中配置 OPENAI_API_KEY。'],
+    };
+  }
+
   const prompt = `你是一位资深的技术导师。请为以下目标岗位制定学习计划：
 
 目标岗位：${targetJob}
@@ -323,7 +394,7 @@ export async function generateLearningPlan(targetJob: string, timeline: string, 
 
 学习计划应该详细、可执行，包含具体的学习任务和推荐资源。`;
 
-  const response = await openai.chat.completions.create({
+  const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
