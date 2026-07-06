@@ -38,4 +38,4 @@ ENV NODE_ENV=production
 
 EXPOSE 10000
 
-CMD ["node", "server/dist/index.js"]
+CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node dist/index.js"]
