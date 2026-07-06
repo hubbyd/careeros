@@ -19,6 +19,8 @@ FROM node:18-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/server/prisma ./server/prisma
@@ -26,6 +28,9 @@ COPY --from=builder /app/server/package.json ./server/package.json
 COPY --from=builder /app/server/package-lock.json ./server/package-lock.json
 
 RUN cd server && npm ci --only=production
+
+COPY --from=builder /app/server/node_modules/.prisma ./server/node_modules/.prisma
+COPY --from=builder /app/server/node_modules/@prisma/client ./server/node_modules/@prisma/client
 
 RUN mkdir -p /app/data
 
