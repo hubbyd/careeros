@@ -11,7 +11,7 @@ COPY . .
 
 RUN npm run build
 
-RUN cd server && npm ci --only=production && npm run build
+RUN cd server && npm ci && npm run build
 RUN npx prisma generate --schema server/prisma/schema.prisma
 
 FROM node:18-alpine
@@ -21,7 +21,8 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/server/prisma ./server/prisma
-COPY --from=builder /app/server/node_modules ./server/node_modules
+
+RUN cd server && npm ci --only=production
 
 ENV NODE_ENV=production
 
