@@ -347,3 +347,116 @@
   color: white;
   cursor: pointer;
 }
+
+.textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--r-md);
+  font-size: var(--fs-base);
+  color: var(--dark);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 200ms ease;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: var(--primary);
+}
+
+.detailModal {
+  background: var(--surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 300ms ease;
+}
+
+.detailSection {
+  margin-bottom: 16px;
+}
+
+.detailSection h4 {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.detailLabel {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.detailValue {
+  font-size: var(--fs-sm);
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.statusBtn {
+  padding: 8px 4px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.statusBtnActive {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.editBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.deleteBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--accent-pink);
+  background: rgba(239, 71, 111, 0.1);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--accent-pink);
+  cursor: pointer;
+}

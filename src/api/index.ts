@@ -145,9 +145,94 @@ export const questionApi = {
 export const careerApi = {
   get: () => request<any>('/career'),
 
-  submit: (data: any) =>
-    request<any>('/career', {
+  diagnosis: (data: { skills: any[]; interests: string[]; personality: any[]; education: string; major: string; experience?: string }) =>
+    request<any>('/career/diagnosis', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+}
+
+// Resume API
+export const resumeApi = {
+  list: () => request<any[]>('/resume'),
+
+  get: (id: string) => request<any>(`/resume/${id}`),
+
+  analyze: (content: string, targetJob?: string) =>
+    request<any>('/resume/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ content, targetJob }),
+    }),
+
+  optimize: (content: string, targetJob?: string, resumeId?: string) =>
+    request<any>('/resume/optimize', {
+      method: 'POST',
+      body: JSON.stringify({ content, targetJob, resumeId }),
+    }),
+
+  delete: (id: string) =>
+    request<{ message: string }>(`/resume/${id}`, { method: 'DELETE' }),
+}
+
+// Interview API
+export const interviewApi = {
+  sessions: () => request<any[]>('/interview/sessions'),
+
+  getSession: (id: string) => request<any>(`/interview/sessions/${id}`),
+
+  createSession: (jobTitle: string, company?: string) =>
+    request<any>('/interview/sessions', {
+      method: 'POST',
+      body: JSON.stringify({ jobTitle, company }),
+    }),
+
+  answer: (sessionId: string, question: string, answer: string, questionType?: string) =>
+    request<any>(`/interview/sessions/${sessionId}/answer`, {
+      method: 'POST',
+      body: JSON.stringify({ question, answer, questionType }),
+    }),
+
+  finish: (sessionId: string) =>
+    request<any>(`/interview/sessions/${sessionId}/finish`, {
+      method: 'POST',
+    }),
+
+  deleteSession: (id: string) =>
+    request<{ message: string }>(`/interview/sessions/${id}`, { method: 'DELETE' }),
+}
+
+// Learning API
+export const learningApi = {
+  plans: () => request<any[]>('/learning/plans'),
+
+  getPlan: (id: string) => request<any>(`/learning/plans/${id}`),
+
+  createPlan: (targetJob: string, timeline?: string, currentSkills?: string[]) =>
+    request<any>('/learning/plans', {
+      method: 'POST',
+      body: JSON.stringify({ targetJob, timeline, currentSkills }),
+    }),
+
+  updatePlan: (id: string, progress?: number, tasks?: any[]) =>
+    request<any>(`/learning/plans/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ progress, tasks }),
+    }),
+
+  deletePlan: (id: string) =>
+    request<{ message: string }>(`/learning/plans/${id}`, { method: 'DELETE' }),
+}
+
+// Growth API
+export const growthApi = {
+  records: () => request<any[]>('/growth/records'),
+
+  createRecord: (type: string, content: any) =>
+    request<any>('/growth/records', {
+      method: 'POST',
+      body: JSON.stringify({ type, content }),
+    }),
+
+  deleteRecord: (id: string) =>
+    request<{ message: string }>(`/growth/records/${id}`, { method: 'DELETE' }),
 }

@@ -1,0 +1,36 @@
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 200ms ease;
+}
+
+.badge:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.emoji {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.locked {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.locked:hover {
+  transform: none;
+}

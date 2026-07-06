@@ -1,0 +1,342 @@
+.page { padding: 16px 16px 80px; max-width: 600px; margin: 0 auto; }
+
+/* === Create === */
+.create { text-align: center; }
+
+.createIcon { font-size: 64px; margin-bottom: 16px; }
+
+.createTitle { font-size: 28px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+
+.createDesc { font-size: var(--fs-base); color: var(--text-secondary); margin-bottom: 24px; }
+
+.createCard { padding: 24px; }
+
+.formGroup { margin-bottom: 20px; }
+
+.formLabel {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  font-size: var(--fs-base);
+  background: var(--surface);
+  color: var(--dark);
+  box-sizing: border-box;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px var(--purple-light);
+}
+
+.formOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formOpt {
+  padding: 8px 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.formOpt:hover { border-color: var(--purple); color: var(--purple); }
+
+.formOptActive {
+  background: var(--purple);
+  color: white;
+  border-color: var(--purple);
+}
+
+/* === Plans === */
+.plans { display: flex; flex-direction: column; gap: 16px; }
+
+.plansHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.plansTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.emptyPlans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  background: var(--bg-soft);
+  border-radius: var(--r-xl);
+}
+
+.emptyIcon { font-size: 48px; }
+
+.emptyText { font-size: var(--fs-base); color: var(--text-secondary); }
+
+.planList { display: flex; flex-direction: column; gap: 12px; }
+
+.planCard { padding: 16px; }
+
+.planHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.planInfo { display: flex; flex-direction: column; }
+
+.planJob {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.planTimeline {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.planProgressText {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--purple);
+}
+
+.planMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.planDate { font-size: var(--fs-xs); color: var(--text-tertiary); }
+
+.planActions { display: flex; gap: 8px; }
+
+/* === Detail === */
+.detail { display: flex; flex-direction: column; gap: 16px; }
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backBtn {
+  padding: 6px 12px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  background: var(--bg-soft);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.detailTitle {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+}
+
+.detailProgressBadge {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: white;
+  background: var(--purple);
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+}
+
+.detailCard { padding: 20px; }
+
+.detailInfo { margin-bottom: 16px; }
+
+.detailJob {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.detailMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detailDate { font-size: var(--fs-sm); color: var(--text-tertiary); }
+
+.detailStats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statNum {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--purple);
+}
+
+.statLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+/* === Phase Card === */
+.phaseCard { padding: 20px; }
+
+.phaseHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.phaseIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+}
+
+.phaseInfo { display: flex; flex-direction: column; }
+
+.phaseTitle {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.phaseDuration {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+/* === Objectives === */
+.phaseObjectives {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+}
+
+.objectivesLabel {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.objectivesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.objectiveItem {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  padding: 4px 0;
+}
+
+/* === Tasks === */
+.phaseTasks { margin-top: 12px; }
+
+.tasksLabel {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.tasksList { display: flex; flex-direction: column; gap: 6px; }
+
+.taskItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: var(--r-md);
+  cursor: pointer;
+}
+
+.taskCheck {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--purple);
+}
+
+.taskText {
+  flex: 1;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+.taskDone {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+/* === Resources === */
+.resourcesTitle {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.resourcesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* === Detail Footer === */
+.detailFooter {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.detailFooter Button { flex: 1; }

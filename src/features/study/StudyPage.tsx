@@ -2,23 +2,20 @@ import { useState, useEffect, useRef } from 'react'
 import { useStudyStore } from '../../stores/useStudyStore'
 import { useQuestionStore } from '../../stores/useQuestionStore'
 import ProgressRing from '../../components/ProgressRing/ProgressRing'
+import { subjects, subjectColors } from '../../constants/subjects'
 import styles from './StudyPage.module.css'
-
-const subjects = ['React', 'CSS', '算法', '网络', 'TS', '项目']
 
 export default function StudyPage() {
   const streak = useStudyStore((s) => s.streak)
   const plans = useStudyStore((s) => s.plans)
   const togglePlan = useStudyStore((s) => s.togglePlan)
   const checkIn = useStudyStore((s) => s.checkIn)
-  const masteryRate = useQuestionStore((s) => s.getMasteryRate())
   const [pomodoroOpen, setPomodoroOpen] = useState(false)
 
   const todayPlans = plans.filter((p) => p.date === new Date().toISOString().slice(0, 10))
 
   return (
     <div className={styles.page}>
-      {/* Streak Hero */}
       <section className={styles.hero}>
         <div className={styles.heroTop}>
           <div>
@@ -34,7 +31,6 @@ export default function StudyPage() {
         </div>
       </section>
 
-      {/* 番茄钟入口 */}
       <section className={styles.pomoCard} onClick={() => setPomodoroOpen(true)}>
         <div className={styles.pomoLeft}>
           <div className={styles.pomoIcon}>⏱️</div>
@@ -46,7 +42,6 @@ export default function StudyPage() {
         <div className={styles.pomoArrow}>→</div>
       </section>
 
-      {/* 今日学习计划 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>📚 今日学习计划</h3>
         <div className={styles.planList}>
@@ -67,17 +62,19 @@ export default function StudyPage() {
         </div>
       </section>
 
-      {/* 科目掌握度 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>📊 科目掌握度</h3>
         <div className={styles.subjectList}>
-          {subjects.map((sub) => {
-            const pct = Math.round(Math.random() * 40 + 50)
+          {subjects.map((sub: string) => {
+            const questions = useQuestionStore.getState().questions
+            const subQuestions = questions.filter((q) => q.category === sub.toLowerCase() || q.title.includes(sub))
+            const mastered = subQuestions.filter((q) => q.mastered).length
+            const pct = subQuestions.length > 0 ? Math.round((mastered / subQuestions.length) * 100) : 0
             return (
               <div key={sub} className={styles.subjectRow}>
                 <span className={styles.subjectName}>{sub}</span>
                 <div className={styles.subjectBarBg}>
-                  <div className={styles.subjectBarFill} style={{ width: `${pct}%` }} />
+                  <div className={styles.subjectBarFill} style={{ width: `${pct}%`, background: subjectColors[sub] || 'var(--primary)' }} />
                 </div>
                 <span className={styles.subjectPct}>{pct}%</span>
               </div>
@@ -86,7 +83,6 @@ export default function StudyPage() {
         </div>
       </section>
 
-      {/* 成就徽章 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>🏆 成就徽章</h3>
         <div className={styles.badgeGrid}>
@@ -106,7 +102,6 @@ export default function StudyPage() {
         </div>
       </section>
 
-      {/* 番茄钟弹窗 */}
       {pomodoroOpen && (
         <div className={styles.modalOverlay} onClick={() => setPomodoroOpen(false)}>
           <div className={styles.pomoModal} onClick={(e) => e.stopPropagation()}>

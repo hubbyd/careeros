@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
+import prisma from '../utils/prisma'
 import { authMiddleware, AuthRequest } from '../middleware/auth'
 
 const router = Router()
-const prisma = new PrismaClient()
 
 // 获取所有求职申请
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {

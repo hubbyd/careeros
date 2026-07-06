@@ -6,6 +6,8 @@ import StudyPage from '../features/study/StudyPage'
 import InterviewPage from '../features/interview/InterviewPage'
 import ProfilePage from '../features/profile/ProfilePage'
 import CareerPage from '../features/career/CareerPage'
+import ResumePage from '../features/resume/ResumePage'
+import LearningPage from '../features/learning/LearningPage'
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import { useUserStore } from '../stores/useUserStore'
@@ -36,6 +38,8 @@ export default function AppRouter() {
         <Route path="interview" element={<InterviewPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="career" element={<CareerPage />} />
+        <Route path="resume" element={<ResumePage />} />
+        <Route path="learning" element={<LearningPage />} />
       </Route>
     </Routes>
   )

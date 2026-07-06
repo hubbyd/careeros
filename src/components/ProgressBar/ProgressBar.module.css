@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.barBg {
+  height: 8px;
+  background: var(--border-soft);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 500ms ease;
+}
+
+.percent {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.sm .barBg { height: 6px; }
+.md .barBg { height: 8px; }
+.lg .barBg { height: 12px; }

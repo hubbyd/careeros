@@ -2,140 +2,179 @@ import { useTodoStore } from '../../stores/useTodoStore'
 import { useUserStore } from '../../stores/useUserStore'
 import { useStudyStore } from '../../stores/useStudyStore'
 import { useApplicationStore } from '../../stores/useApplicationStore'
+import { useGreeting } from '../../hooks/useGreeting'
+import Card from '../../components/Card/Card'
+import Button from '../../components/Button/Button'
+import ProgressBar from '../../components/ProgressBar/ProgressBar'
+import Tag from '../../components/Tag/Tag'
 import styles from './DashboardPage.module.css'
 
-const quotes = [
-  '今天的努力，是明天 Offer 的底气 💪',
-  '每一次投递，都离梦想更近一步 🚀',
-  '算法题不会？刷！面试紧张？练！🔥',
-  '你比昨天的自己更强，这就够了 ⭐',
-  '大厂不是终点，成长才是永恒 🌱',
-]
-
 export default function DashboardPage() {
-  const todayTodos = useTodoStore((s) => s.getTodayTodos())
-  const toggleTodo = useTodoStore((s) => s.toggleTodo)
-  const profile = useUserStore((s) => s.profile)
-  const streak = useStudyStore((s) => s.streak)
-  const applications = useApplicationStore((s) => s.applications)
-  const quote = quotes[Math.floor(Date.now() / 86400000) % quotes.length]
+  const { todos, addTodo } = useTodoStore()
+  const { user } = useUserStore()
+  const { plans, streak, sessions } = useStudyStore()
+  const { applications } = useApplicationStore()
+  const greeting = useGreeting()
 
-  const completedTodos = todayTodos.filter((t) => t.completed).length
-  const todoRate = todayTodos.length > 0 ? Math.round((completedTodos / todayTodos.length) * 100) : 0
+  const pendingTodos = todos.filter(t => !t.completed)
+  const completedPlans = plans.filter(p => p.completed).length
+  const totalMinutes = sessions.reduce((sum, s) => sum + s.minutes, 0)
 
-  const activeApps = applications.filter((a) => !['offer', 'rejected'].includes(a.status)).length
-  const totalStudyMinutes = 186 // mock
+  const getStatusTag = (status: string): { color: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple'; label: string } => {
+    switch (status) {
+      case 'offer': return { color: 'success', label: 'Offer' }
+      case 'interview': return { color: 'warning', label: '面试中' }
+      case 'test': return { color: 'info', label: '测试中' }
+      case 'applied': return { color: 'primary', label: '已投递' }
+      case 'rejected': return { color: 'danger', label: '已拒绝' }
+      default: return { color: 'info', label: '待处理' }
+    }
+  }
 
   return (
     <div className={styles.page}>
-      {/* Hero 激励卡 */}
-      <section className={styles.heroCard}>
-        <div className={styles.heroBg1} />
-        <div className={styles.heroBg2} />
-        <div className={styles.heroContent}>
-          <div className={styles.heroTop}>
-            <div>
-              <div className={styles.heroGreeting}>Hi，{profile.name.split('').pop()} 👋</div>
-              <div className={styles.heroSub}>今天也要冲鸭！</div>
-            </div>
-            <div className={styles.streakBadge}>
-              <span className={styles.fire}>🔥</span>
-              <span className={styles.streakNum}>{streak.current}</span>
-              <span className={styles.streakLabel}>天</span>
-            </div>
-          </div>
-          <div className={styles.heroStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statNum}>{activeApps}</div>
-              <div className={styles.statLabel}>进行中</div>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <div className={styles.statNum}>{todoRate}%</div>
-              <div className={styles.statLabel}>任务完成</div>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <div className={styles.statNum}>{Math.round(totalStudyMinutes / 60)}h</div>
-              <div className={styles.statLabel}>本周学习</div>
-            </div>
-          </div>
+      <div className={styles.header}>
+        <div className={styles.headerContent}>
+          <h1 className={styles.greeting}>{greeting}，{user?.name || '同学'}</h1>
+          <p className={styles.date}>{new Date().toLocaleDateString('zh-CN', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
         </div>
-      </section>
-
-      {/* 快捷入口 */}
-      <section className={styles.quickGrid}>
-        {[
-          { emoji: '📋', label: '求职看板', to: '/kanban' },
-          { emoji: '⏱️', label: '学习打卡', to: '/study' },
-          { emoji: '🎤', label: '模拟面试', to: '/interview' },
-          { emoji: '👨🏫', label: '职业咨询', to: '/career' },
-        ].map((q) => (
-          <a key={q.to} href={q.to} className={styles.quickItem}>
-            <div className={styles.quickIcon}>{q.emoji}</div>
-            <div className={styles.quickLabel}>{q.label}</div>
-          </a>
-        ))}
-      </section>
-
-      {/* 今日待办 */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>📌 今日待办</h3>
-        <div className={styles.todoList}>
-          {todayTodos.length === 0 && (
-            <div className={styles.empty}>今天没有任务，享受自由时光 ✨</div>
+        <div className={styles.headerAvatar}>
+          {user?.avatar ? (
+            <img src={user.avatar} alt="Avatar" className={styles.avatar} />
+          ) : (
+            <div className={styles.avatarPlaceholder}>👤</div>
           )}
-          {todayTodos.map((todo) => (
-            <label key={todo.id} className={styles.todoItem}>
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleTodo(todo.id)}
-                className={styles.todoCheck}
-              />
-              <span className={`${styles.todoTitle} ${todo.completed ? styles.todoDone : ''}`}>
-                {todo.title}
-              </span>
-            </label>
-          ))}
         </div>
-      </section>
+      </div>
 
-      {/* 本周进度 */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>📊 本周进度</h3>
-        <div className={styles.progressCard}>
-          <div className={styles.progressHeader}>
-            <span>任务完成率</span>
-            <span className={styles.progressPct}>{todoRate}%</span>
+      <div className={styles.quickStats}>
+        <Card className={styles.statCard}>
+          <div className={styles.statIcon}>📋</div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{pendingTodos.length}</span>
+            <span className={styles.statLabel}>待办事项</span>
           </div>
-          <div className={styles.progressBarBg}>
-            <div className={styles.progressBarFill} style={{ width: `${todoRate}%` }} />
+        </Card>
+        <Card className={styles.statCard}>
+          <div className={styles.statIcon}>🔥</div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{streak.current}</span>
+            <span className={styles.statLabel}>连续打卡</span>
           </div>
-          <div className={styles.progressHeader} style={{ marginTop: 16 }}>
-            <span>投递进度</span>
-            <span className={styles.progressPct}>
-              {applications.filter((a) => a.status !== 'pending').length}/{applications.length}
-            </span>
+        </Card>
+        <Card className={styles.statCard}>
+          <div className={styles.statIcon}>💼</div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{applications.length}</span>
+            <span className={styles.statLabel}>求职申请</span>
           </div>
-          <div className={styles.progressBarBg}>
-            <div
-              className={styles.progressBarFill}
-              style={{
-                width: `${applications.length > 0 ? Math.round(applications.filter((a) => a.status !== 'pending').length / applications.length * 100) : 0}%`,
-              }}
-            />
+        </Card>
+        <Card className={styles.statCard}>
+          <div className={styles.statIcon}>📚</div>
+          <div className={styles.statInfo}>
+            <span className={styles.statValue}>{totalMinutes}</span>
+            <span className={styles.statLabel}>今日学习(分钟)</span>
           </div>
-        </div>
-      </section>
+        </Card>
+      </div>
 
-      {/* 每日金句 */}
-      <section className={styles.section}>
-        <div className={styles.quoteCard}>
-          <span className={styles.quoteIcon}>💡</span>
-          <p className={styles.quoteText}>{quote}</p>
+      <div className={styles.mainContent}>
+        <div className={styles.leftPanel}>
+          <Card className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>📝 今日待办</h2>
+              <Button size="sm" onClick={() => addTodo('新任务')}>+ 添加</Button>
+            </div>
+            {pendingTodos.length === 0 ? (
+              <div className={styles.emptyState}>
+                <span>✅</span>
+                <span>今日暂无待办，真棒！</span>
+              </div>
+            ) : (
+              <ul className={styles.todoList}>
+                {pendingTodos.slice(0, 5).map(todo => (
+                  <li key={todo.id} className={styles.todoItem}>
+                    <input type="checkbox" checked={todo.completed} className={styles.todoCheckbox} />
+                    <span className={styles.todoText}>{todo.title}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+
+          <Card className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>📚 学习计划</h2>
+            </div>
+            <div className={styles.planProgress}>
+              <ProgressBar progress={plans.length > 0 ? Math.round((completedPlans / plans.length) * 100) : 0} size="md" />
+              <span className={styles.planProgressText}>{completedPlans}/{plans.length} 已完成</span>
+            </div>
+            <ul className={styles.planList}>
+              {plans.slice(0, 3).map(plan => (
+                <li key={plan.id} className={styles.planItem}>
+                  <input type="checkbox" checked={plan.completed} className={styles.planCheckbox} />
+                  <span className={styles.planTitle}>{plan.title}</span>
+                  <Tag color="info">{plan.subject}</Tag>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
-      </section>
+
+        <div className={styles.rightPanel}>
+          <Card className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>💼 最近申请</h2>
+            </div>
+            {applications.length === 0 ? (
+              <div className={styles.emptyState}>
+                <span>💼</span>
+                <span>还没有求职申请</span>
+              </div>
+            ) : (
+              <div className={styles.appList}>
+                {applications.slice(0, 3).map(app => {
+                  const statusInfo = getStatusTag(app.status)
+                  return (
+                    <div key={app.id} className={styles.appItem}>
+                      <div className={styles.appInfo}>
+                        <h4 className={styles.appCompany}>{app.company}</h4>
+                        <span className={styles.appPosition}>{app.position}</span>
+                      </div>
+                      <Tag color={statusInfo.color}>{statusInfo.label}</Tag>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </Card>
+
+          <Card className={styles.sectionCard}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>🎯 快捷入口</h2>
+            </div>
+            <div className={styles.shortcutGrid}>
+              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/career'}>
+                <span className={styles.shortcutIcon}>🤖</span>
+                <span className={styles.shortcutLabel}>职业诊断</span>
+              </button>
+              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/learning'}>
+                <span className={styles.shortcutIcon}>📚</span>
+                <span className={styles.shortcutLabel}>学习路线</span>
+              </button>
+              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/interview'}>
+                <span className={styles.shortcutIcon}>💬</span>
+                <span className={styles.shortcutLabel}>模拟面试</span>
+              </button>
+              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/resume'}>
+                <span className={styles.shortcutIcon}>📝</span>
+                <span className={styles.shortcutLabel}>简历优化</span>
+              </button>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

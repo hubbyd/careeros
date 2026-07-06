@@ -8,6 +8,10 @@ import appRoutes from './routes/applications'
 import studyRoutes from './routes/study'
 import questionRoutes from './routes/questions'
 import careerRoutes from './routes/career'
+import resumeRoutes from './routes/resume'
+import interviewRoutes from './routes/interview'
+import learningRoutes from './routes/learning'
+import growthRoutes from './routes/growth'
 
 dotenv.config()
 
@@ -22,11 +26,9 @@ app.use(express.json())
 
 // 生产环境下提供前端静态文件
 if (isProduction) {
-  // __dirname 在生产环境是 server/dist，需要回到项目根目录找 dist/
-  const clientDistPath = path.resolve(__dirname, '../../dist')
+  const clientDistPath = path.resolve(__dirname, '../dist')
   app.use(express.static(clientDistPath))
 
-  // SPA fallback：所有非 API 请求都返回 index.html
   app.get('*', (req: Request, res: Response) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.resolve(clientDistPath, 'index.html'))
@@ -46,6 +48,10 @@ app.use('/api/applications', appRoutes)
 app.use('/api/study', studyRoutes)
 app.use('/api/questions', questionRoutes)
 app.use('/api/career', careerRoutes)
+app.use('/api/resume', resumeRoutes)
+app.use('/api/interview', interviewRoutes)
+app.use('/api/learning', learningRoutes)
+app.use('/api/growth', growthRoutes)
 
 // 错误处理
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

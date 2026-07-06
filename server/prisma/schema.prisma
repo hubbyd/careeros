@@ -1,38 +1,39 @@
-// Prisma Schema for JobSprint
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-// 用户
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
   password    String
   name        String
   avatar      String?
+  role        String   @default("user")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  todos       Todo[]
-  applications Application[]
-  studyLogs    StudyLog[]
-  questions    Question[]
-  assessment   CareerAssessment?
+  todos              Todo[]
+  applications       Application[]
+  studyLogs          StudyLog[]
+  questions          Question[]
+  careerAssessments  CareerAssessment[]
+  resumes            Resume[]
+  interviewSessions  InterviewSession[]
+  learningPlans      LearningPlan[]
+  growthRecords      GrowthRecord[]
 }
 
-// 待办事项
 model Todo {
   id        String   @id @default(cuid())
   userId    String
   content   String
   done      Boolean  @default(false)
-  date      String   // YYYY-MM-DD
+  date      String
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -40,15 +41,14 @@ model Todo {
   @@index([userId, date])
 }
 
-// 求职申请
 model Application {
   id          String   @id @default(cuid())
   userId      String
   company     String
   position    String
   salary      String?
-  status      String   @default("pending") // pending/applied/test/interview/offer/rejected
-  priority    String   @default("medium")  // high/medium/low
+  status      String   @default("pending")
+  priority    String   @default("medium")
   deadline    String?
   progress    Int      @default(0)
   notes       String?
@@ -60,12 +60,11 @@ model Application {
   @@index([userId, status])
 }
 
-// 学习记录
 model StudyLog {
   id          String   @id @default(cuid())
   userId      String
-  date        String   // YYYY-MM-DD
-  subject     String   // 学习科目
+  date        String
+  subject     String
   minutes     Int      @default(0)
   pomodoroCount Int    @default(0)
   checkedIn   Boolean  @default(false)
@@ -76,14 +75,13 @@ model StudyLog {
   @@unique([userId, date])
 }
 
-// 面试题库（用户自己的题）
 model Question {
   id          String   @id @default(cuid())
   userId      String
-  category    String   // javascript/typescript/react/algorithm/system-design/behavior
+  category    String
   question    String
   answer      String?
-  difficulty  String   @default("medium") // easy/medium/hard
+  difficulty  String   @default("medium")
   mastered    Boolean  @default(false)
   createdAt   DateTime @default(now())
 
@@ -92,19 +90,81 @@ model Question {
   @@index([userId, category])
 }
 
-// 职业测评结果
 model CareerAssessment {
   id            String   @id @default(cuid())
-  userId        String   @unique
+  userId        String
   major         String
   education     String
-  cities        String   // JSON array
+  cities        String
   expectedSalary Int
-  skills        String   // JSON array
+  skills        String
   values        String
-  summary       String?  // AI 生成的测评报告
+  summary       String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Resume {
+  id              String   @id @default(cuid())
+  userId          String
+  content         String
+  targetJob       String?
+  analysisScore   Int      @default(0)
+  analysisResult  String?
+  optimizedContent String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model InterviewSession {
+  id              String   @id @default(cuid())
+  userId          String
+  jobTitle        String
+  company         String
+  status          String   @default("in_progress")
+  questions       String
+  answers         String
+  report          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model LearningPlan {
+  id              String   @id @default(cuid())
+  userId          String
+  targetJob       String
+  timeline        String
+  phases          String
+  tasks           String
+  progress        Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model GrowthRecord {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String
+  content         String
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

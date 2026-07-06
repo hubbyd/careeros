@@ -1,146 +1,161 @@
 import { Router, Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
+import prisma from '../utils/prisma'
 import { authMiddleware, AuthRequest } from '../middleware/auth'
+import { analyzeCareerDiagnosis } from '../services/aiService'
 
 const router = Router()
-const prisma = new PrismaClient()
 
-// 获取职业测评结果
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const assessment = await prisma.careerAssessment.findUnique({
+    const assessments = await prisma.careerAssessment.findMany({
       where: { userId: req.userId! },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
     })
-    res.json(assessment)
+    res.json(assessments)
   } catch {
     res.status(500).json({ error: '获取测评结果失败' })
   }
 })
 
-// 提交职业测评
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { major, education, cities, expectedSalary, skills, values } = req.body
+router.post('/diagnosis', authMiddleware, async (req: AuthRequest, res: Response) => {
+  const { skills, interests, personality, education, major, experience } = req.body
 
   if (!major || !education) {
     return res.status(400).json({ error: '专业和学历必填' })
   }
 
   try {
-    // 生成简单的测评报告（基于规则，不调用 AI）
-    const summary = generateCareerReport(major, education, cities, expectedSalary, skills, values)
-
-    const existing = await prisma.careerAssessment.findUnique({
-      where: { userId: req.userId! },
+    const result = await analyzeCareerDiagnosis({
+      skills: skills || [],
+      interests: interests || [],
+      personality: personality || [],
+      education,
+      major,
+      experience: experience || '',
     })
 
-    if (existing) {
-      const updated = await prisma.careerAssessment.update({
-        where: { userId: req.userId! },
-        data: {
-          major,
-          education,
-          cities: JSON.stringify(cities),
-          expectedSalary,
-          skills: JSON.stringify(skills),
-          values,
-          summary,
-        },
-      })
-      res.json(updated)
-    } else {
-      const assessment = await prisma.careerAssessment.create({
-        data: {
-          userId: req.userId!,
-          major,
-          education,
-          cities: JSON.stringify(cities),
-          expectedSalary,
-          skills: JSON.stringify(skills),
-          values,
-          summary,
-        },
-      })
-      res.status(201).json(assessment)
-    }
-  } catch {
-    res.status(500).json({ error: '提交测评失败' })
+    const assessment = await prisma.careerAssessment.create({
+      data: {
+        userId: req.userId!,
+        major,
+        education,
+        cities: JSON.stringify([]),
+        expectedSalary: 0,
+        skills: JSON.stringify(skills),
+        values: JSON.stringify(personality),
+        summary: JSON.stringify(result),
+      },
+    })
+
+    await prisma.growthRecord.create({
+      data: {
+        userId: req.userId!,
+        type: 'diagnosis',
+        content: JSON.stringify({
+          type: '职业诊断',
+          summary: result.summary,
+          matches: result.matches.slice(0, 3).map(m => m.title),
+        }),
+      },
+    })
+
+    res.status(201).json({ assessment, result })
+  } catch (error) {
+    console.error('AI诊断失败:', error)
+    const fallbackResult = generateFallbackReport(major, education, skills)
+    
+    const assessment = await prisma.careerAssessment.create({
+      data: {
+        userId: req.userId!,
+        major,
+        education,
+        cities: JSON.stringify([]),
+        expectedSalary: 0,
+        skills: JSON.stringify(skills),
+        values: JSON.stringify(personality),
+        summary: JSON.stringify(fallbackResult),
+      },
+    })
+
+    res.status(201).json({ assessment, result: fallbackResult })
   }
 })
 
-// 生成职业测评报告（基于规则）
-function generateCareerReport(
-  major: string,
-  education: string,
-  cities: string[],
-  expectedSalary: number,
-  skills: string[],
-  values: string
-): string {
-  const cityNames = cities.join('、')
-  const skillNames = skills.join('、')
-
-  let report = `# 职业测评报告\n\n`
-  report += `## 基本信息\n`
-  report += `- 专业：${major}\n`
-  report += `- 学历：${education}\n`
-  report += `- 期望城市：${cityNames}\n`
-  report += `- 期望月薪：${expectedSalary}K\n`
-  report += `- 核心技能：${skillNames}\n`
-  report += `- 职业价值观：${values}\n\n`
-
-  report += `## 推荐方向\n\n`
-
-  // 基于专业推荐
+function generateFallbackReport(major: string, education: string, skills: any[]): any {
+  const skillNames = skills.map((s: any) => s.name).join(', ')
   const recommendations: any[] = []
 
-  if (['计算机科学', '软件工程', '信息技术'].includes(major)) {
+  if (major.includes('计算机') || major.includes('软件') || major.includes('信息')) {
     recommendations.push({
       title: '前端开发工程师',
       match: 95,
-      reason: '你的专业背景与前端开发高度匹配，建议重点准备 React/Vue 框架',
+      salaryRange: '15-30K',
+      prospects: '前景良好，市场需求大',
+      threshold: '掌握HTML/CSS/JS，熟悉React/Vue',
+      pros: ['入门相对简单', '可视化成果明显', '市场需求大'],
+      cons: ['技术更新快', '竞争激烈'],
+      tags: ['Web', 'React', 'Vue'],
     })
     recommendations.push({
       title: '后端开发工程师',
       match: 90,
-      reason: '计算机系统知识扎实，适合后端开发岗位',
+      salaryRange: '18-35K',
+      prospects: '核心岗位，发展稳定',
+      threshold: '掌握一门后端语言，了解数据库',
+      pros: ['技术壁垒高', '薪资相对较高'],
+      cons: ['学习周期长', '压力较大'],
+      tags: ['Java', 'Go', 'Python'],
     })
   }
 
-  if (['数据科学', '统计学', '数学'].includes(major)) {
+  if (major.includes('数据') || major.includes('统计') || major.includes('数学')) {
     recommendations.push({
       title: '数据分析师',
       match: 92,
-      reason: '数学统计背景强，适合数据分析方向',
+      salaryRange: '12-25K',
+      prospects: '各行业需求增长',
+      threshold: '掌握SQL、Python、统计学',
+      pros: ['应用广泛', '薪资稳定'],
+      cons: ['天花板相对较低'],
+      tags: ['SQL', 'Python', '统计学'],
     })
     recommendations.push({
       title: '算法工程师',
       match: 85,
-      reason: '算法基础扎实，可以往 AI 方向发展',
+      salaryRange: '25-50K',
+      prospects: 'AI时代核心岗位',
+      threshold: '扎实的数学和算法基础',
+      pros: ['薪资高', '技术成就感强'],
+      cons: ['门槛极高', '竞争激烈'],
+      tags: ['机器学习', '深度学习'],
     })
   }
 
   if (recommendations.length === 0) {
     recommendations.push({
-      title: '转码建议',
+      title: '产品经理',
       match: 75,
-      reason: '建议通过培训或自学转入技术岗位，市场需求大',
+      salaryRange: '12-25K',
+      prospects: '各行业都有需求',
+      threshold: '良好的逻辑思维和沟通能力',
+      pros: ['发展路径广', '不局限于技术'],
+      cons: ['需要积累经验'],
+      tags: ['产品', '需求分析'],
     })
   }
 
-  recommendations.forEach((r, i) => {
-    report += `### ${i + 1}. ${r.title}（匹配度 ${r.match}%）\n`
-    report += `${r.reason}\n\n`
-  })
-
-  report += `## 行动建议\n\n`
-  report += `1. **技能提升**：重点强化 ${skills.slice(0, 3).join('、')} 等核心技能\n`
-  report += `2. **项目积累**：至少完成 2-3 个完整项目并部署上线\n`
-  report += `3. **简历优化**：突出项目经验和技术栈，量化成果\n`
-  report += `4. **面试准备**：刷题 + 模拟面试，建议每天 2-3 题\n\n`
-
-  report += `---\n\n*报告生成时间：${new Date().toLocaleDateString('zh-CN')}*\n`
-
-  return report
+  return {
+    summary: `基于你的专业【${major}】和学历【${education}】，以下是适合你的职业方向建议。建议重点关注技能提升和项目积累。`,
+    strengths: ['有明确的专业背景', '学习能力强'],
+    weaknesses: ['缺乏实战经验', '职业规划不够清晰'],
+    suggestions: [
+      `重点强化${skillNames || '核心'}技能`,
+      '至少完成2-3个完整项目并部署上线',
+      '通过模拟面试提升表达能力',
+    ],
+    matches: recommendations,
+  }
 }
 
 export default router

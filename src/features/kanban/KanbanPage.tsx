@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useApplicationStore } from '../../stores/useApplicationStore'
-import type { AppStatus, Priority } from '../../types'
+import type { AppStatus, Priority, JobApplication } from '../../types'
 import styles from './KanbanPage.module.css'
 
 const pills: { key: AppStatus | 'all'; label: string }[] = [
@@ -19,14 +19,19 @@ export default function KanbanPage() {
   const applications = useApplicationStore((s) => s.applications)
   const addApplication = useApplicationStore((s) => s.addApplication)
   const updateStatus = useApplicationStore((s) => s.updateStatus)
+  const removeApplication = useApplicationStore((s) => s.removeApplication)
   const [activePill, setActivePill] = useState<AppStatus | 'all'>('all')
   const [addOpen, setAddOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null)
+  const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({
     company: '',
     position: '',
     salary: '',
     priority: 'medium' as Priority,
     deadline: '',
+    notes: '',
   })
 
   const filtered =
@@ -46,10 +51,44 @@ export default function KanbanPage() {
       priority: form.priority,
       deadline: form.deadline || undefined,
       progress: 0,
-      notes: '',
+      notes: form.notes,
     })
-    setForm({ company: '', position: '', salary: '', priority: 'medium', deadline: '' })
+    setForm({ company: '', position: '', salary: '', priority: 'medium', deadline: '', notes: '' })
     setAddOpen(false)
+  }
+
+  const handleOpenDetail = (app: JobApplication) => {
+    setSelectedApp(app)
+    setDetailOpen(true)
+    setEditing(false)
+  }
+
+  const handleEdit = () => {
+    if (!selectedApp) return
+    setForm({
+      company: selectedApp.company,
+      position: selectedApp.position,
+      salary: selectedApp.salary,
+      priority: selectedApp.priority,
+      deadline: selectedApp.deadline || '',
+      notes: selectedApp.notes,
+    })
+    setEditing(true)
+  }
+
+  const handleSave = () => {
+    if (!selectedApp || !form.company || !form.position) return
+    const appList = useApplicationStore.getState().applications
+    const index = appList.findIndex((a) => a.id === selectedApp.id)
+    if (index !== -1) {
+      useApplicationStore.getState().applications[index] = {
+        ...selectedApp,
+        ...form,
+        updatedAt: Date.now(),
+      }
+    }
+    setEditing(false)
+    setSelectedApp({ ...selectedApp, ...form, updatedAt: Date.now() })
   }
 
   return (
@@ -75,7 +114,7 @@ export default function KanbanPage() {
       {/* 卡片列表 */}
       <div className={styles.cardList}>
         {filtered.map((app) => (
-          <div key={app.id} className={styles.appCard}>
+          <div key={app.id} className={styles.appCard} onClick={() => handleOpenDetail(app)}>
             <div
               className={styles.priorityBar}
               style={{ background: priorityColor[app.priority] }}
@@ -181,10 +220,166 @@ export default function KanbanPage() {
                 ))}
               </div>
             </div>
+            <div className={styles.formGroup}>
+              <label>备注</label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="添加备注信息..."
+                className={styles.textarea}
+                rows={3}
+              />
+            </div>
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn} onClick={() => setAddOpen(false)}>取消</button>
               <button className={styles.submitBtn} onClick={handleAdd}>添加</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 详情弹窗 */}
+      {detailOpen && selectedApp && (
+        <div className={styles.modalOverlay} onClick={() => setDetailOpen(false)}>
+          <div className={styles.detailModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>📋 {selectedApp.company}</h3>
+              <button onClick={() => setDetailOpen(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            {!editing ? (
+              <>
+                <div className={styles.detailSection}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>岗位</span>
+                    <span className={styles.detailValue}>{selectedApp.position}</span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>薪资</span>
+                    <span className={styles.detailValue}>{selectedApp.salary}</span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>状态</span>
+                    <div className={styles.statusTag} data-status={selectedApp.status}>
+                      {statusLabel[selectedApp.status]}
+                    </div>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>优先级</span>
+                    <span style={{ color: priorityColor[selectedApp.priority] }}>
+                      {selectedApp.priority === 'high' ? '🔴 高' : selectedApp.priority === 'medium' ? '🟡 中' : '🟢 低'}
+                    </span>
+                  </div>
+                  {selectedApp.deadline && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>截止日期</span>
+                      <span className={styles.detailValue}>{selectedApp.deadline}</span>
+                    </div>
+                  )}
+                  {selectedApp.notes && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>备注</span>
+                      <span className={styles.detailValue}>{selectedApp.notes}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.detailSection}>
+                  <h4>更新状态</h4>
+                  <div className={styles.statusGrid}>
+                    {(['pending', 'applied', 'test', 'interview', 'offer', 'rejected'] as AppStatus[]).map((status) => (
+                      <button
+                        key={status}
+                        className={`${styles.statusBtn} ${selectedApp.status === status ? styles.statusBtnActive : ''}`}
+                        onClick={() => {
+                          updateStatus(selectedApp.id, status)
+                          setSelectedApp({ ...selectedApp, status })
+                        }}
+                      >
+                        {statusLabel[status]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.modalActions}>
+                  <button className={styles.editBtn} onClick={handleEdit}>编辑</button>
+                  <button className={styles.deleteBtn} onClick={() => {
+                    removeApplication(selectedApp.id)
+                    setDetailOpen(false)
+                  }}>删除</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.formGroup}>
+                  <label>公司名称 *</label>
+                  <input
+                    type="text"
+                    value={form.company}
+                    onChange={(e) => setForm({ ...form, company: e.target.value })}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>岗位名称 *</label>
+                  <input
+                    type="text"
+                    value={form.position}
+                    onChange={(e) => setForm({ ...form, position: e.target.value })}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>薪资范围</label>
+                    <input
+                      type="text"
+                      value={form.salary}
+                      onChange={(e) => setForm({ ...form, salary: e.target.value })}
+                      className={styles.input}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>截止日期</label>
+                    <input
+                      type="date"
+                      value={form.deadline}
+                      onChange={(e) => setForm({ ...form, deadline: e.target.value })}
+                      className={styles.input}
+                    />
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>优先级</label>
+                  <div className={styles.priorityRow}>
+                    {(['high', 'medium', 'low'] as Priority[]).map((p) => (
+                      <button
+                        key={p}
+                        className={`${styles.priorityBtn} ${form.priority === p ? styles.priorityActive : ''}`}
+                        style={{ '--pc': p === 'high' ? '#EF476F' : p === 'medium' ? '#FF9F1C' : '#06D6A0' } as any}
+                        onClick={() => setForm({ ...form, priority: p })}
+                      >
+                        {p === 'high' ? '🔴 高' : p === 'medium' ? '🟡 中' : '🟢 低'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>备注</label>
+                  <textarea
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    className={styles.textarea}
+                    rows={3}
+                  />
+                </div>
+                <div className={styles.modalActions}>
+                  <button className={styles.cancelBtn} onClick={() => setEditing(false)}>取消</button>
+                  <button className={styles.submitBtn} onClick={handleSave}>保存</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

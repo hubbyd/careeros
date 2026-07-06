@@ -35,3 +35,10 @@ coverage/
 
 # Misc
 workbuddy/
+
+# Docker
+docker-compose.override.yml
+nginx/ssl/
+*.crt
+*.key
+*.pem

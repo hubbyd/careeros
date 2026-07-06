@@ -73,3 +73,90 @@
   border-radius: var(--r-full);
   font-weight: 600;
 }
+
+/* === Growth Records === */
+.emptyRecords {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+.emptyRecords span:first-child { font-size: 32px; }
+
+.recordList { display: flex; flex-direction: column; gap: 8px; }
+
+.recordItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.recordIcon { font-size: 24px; }
+
+.recordContent { flex: 1; }
+
+.recordHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.recordLabel {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.recordDate {
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.recordText {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.recordTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.recordTag {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: var(--purple-light);
+  color: var(--purple);
+  border-radius: var(--r-full);
+  font-weight: 600;
+}
+
+.recordDelete {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-soft);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}

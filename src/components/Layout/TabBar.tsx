@@ -14,7 +14,7 @@ const tabs = [
 export default function TabBar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const streak = useStudyStore((s) => s.streak)
+  const streakCurrent = useStudyStore((s) => s.streak.current)
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/'
@@ -31,8 +31,8 @@ export default function TabBar() {
         >
           <span className={styles.tabIcon}>{tab.icon}</span>
           <span className={styles.tabLabel}>{tab.label}</span>
-          {tab.path === '/study' && streak >= 7 && (
-            <span className={styles.streakBadge}>{streak}</span>
+          {tab.path === '/study' && streakCurrent >= 7 && (
+            <span className={styles.streakBadge}>{streakCurrent}</span>
           )}
         </button>
       ))}

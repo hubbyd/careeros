@@ -1,0 +1,355 @@
+.page {
+  padding: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tabs {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tabActive {
+  background: white;
+  color: #667eea;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.inputSection {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.inputHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #999;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 10px;
+}
+
+.resumeTextarea {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.resumeTextarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.targetJobInput {
+  margin-top: 16px;
+}
+
+.inputLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.analyzeBtn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.resultSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scoreCard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+}
+
+.scoreHeader {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.scoreCircle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+}
+
+.scoreInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.scoreLevel {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.scoreLabel {
+  font-size: 14px;
+  color: #666;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+}
+
+.dimensionsCard {
+  padding: 20px;
+}
+
+.dimensionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dimensionItem {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dimensionItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dimensionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dimensionName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a2e;
+}
+
+.dimensionScore {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dimensionComment {
+  font-size: 13px;
+  color: #666;
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+.suggestionsCard {
+  padding: 20px;
+}
+
+.suggestionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggestionItem {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.suggestionIcon {
+  font-size: 14px;
+}
+
+.suggestionText {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.optimizedCard {
+  padding: 20px;
+}
+
+.optimizedContent {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historyCard {
+  padding: 20px;
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.historyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historyTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.historyDate {
+  font-size: 12px;
+  color: #999;
+}
+
+.historyScore {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.historyPreview {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.historyActions {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .scoreHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+}

@@ -1,6 +1,8 @@
-// @ts-nocheck
+import { useState, useEffect } from 'react'
 import { useUserStore } from '../../stores/useUserStore'
 import { useQuestionStore } from '../../stores/useQuestionStore'
+import { useStudyStore } from '../../stores/useStudyStore'
+import { growthApi } from '../../api'
 import {
   Radar,
   RadarChart,
@@ -14,8 +16,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts'
+import type { GrowthRecord } from '../../types'
 import styles from './ProfilePage.module.css'
 
 const radarData = [
@@ -35,13 +37,73 @@ const growthData = [
   { month: '7月', score: 75 },
 ]
 
+const typeIcons: Record<string, string> = {
+  diagnosis: '🎯',
+  resume: '📄',
+  interview: '💬',
+  learning: '📚',
+  study: '📖',
+  checkin: '✅',
+  application: '📝',
+}
+
+const typeLabels: Record<string, string> = {
+  diagnosis: '职业诊断',
+  resume: '简历优化',
+  interview: '模拟面试',
+  learning: '学习计划',
+  study: '学习打卡',
+  checkin: '打卡',
+  application: '职位投递',
+}
+
 export default function ProfilePage() {
   const profile = useUserStore((s) => s.profile)
   const masteryRate = useQuestionStore((s) => s.getMasteryRate())
+  const streak = useStudyStore((s) => s.streak.current)
+  const [records, setRecords] = useState<GrowthRecord[]>([])
+
+  useEffect(() => {
+    growthApi.records().then(data => {
+      setRecords(data)
+    }).catch(() => {})
+  }, [])
+
+  const handleDeleteRecord = async (id: string) => {
+    try {
+      await growthApi.deleteRecord(id)
+      setRecords(records.filter(r => r.id !== id))
+    } catch (error) {
+      console.error('删除失败:', error)
+    }
+  }
+
+  const parseContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content)
+      if (typeof parsed === 'object') {
+        return parsed
+      }
+    } catch {}
+    return content
+  }
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    
+    if (days === 0) return '今天'
+    if (days === 1) return '昨天'
+    if (days < 7) return `${days}天前`
+    return date.toLocaleDateString('zh-CN')
+  }
+
+  if (!profile) return null
 
   return (
     <div className={styles.page}>
-      {/* Profile Header */}
       <section className={styles.header}>
         <div className={styles.avatar}>{profile.avatar}</div>
         <div className={styles.name}>{profile.name}</div>
@@ -49,11 +111,10 @@ export default function ProfilePage() {
         <div className={styles.joinDate}>加入于 {profile.joinDate}</div>
       </section>
 
-      {/* Stats Row */}
       <section className={styles.statsRow}>
         {[
           { label: '掌握率', value: `${masteryRate}%`, color: '#FF6B35' },
-          { label: '打卡天数', value: `${profile.streak}`, color: '#EF476F' },
+          { label: '打卡天数', value: `${streak}`, color: '#EF476F' },
           { label: '投递数', value: '12', color: '#118AB2' },
           { label: 'Offer', value: '1', color: '#06D6A0' },
         ].map((s) => (
@@ -66,7 +127,6 @@ export default function ProfilePage() {
         ))}
       </section>
 
-      {/* Radar Chart */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>📡 能力雷达图</h3>
         <div className={styles.chartBox}>
@@ -89,7 +149,6 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Growth Curve */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>📈 月度成长曲线</h3>
         <div className={styles.chartBox}>
@@ -111,7 +170,6 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Project Experience */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>🗂️ 项目经历</h3>
         <div className={styles.projectCard}>
@@ -126,6 +184,53 @@ export default function ProfilePage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>📝 成长记录</h3>
+        {records.length === 0 ? (
+          <div className={styles.emptyRecords}>
+            <span>🌱</span>
+            <span>暂无成长记录</span>
+          </div>
+        ) : (
+          <div className={styles.recordList}>
+            {records.map(record => {
+              const content = parseContent(record.content)
+              const icon = typeIcons[record.type] || '📌'
+              const label = typeLabels[record.type] || record.type
+              
+              return (
+                <div key={record.id} className={styles.recordItem}>
+                  <div className={styles.recordIcon}>{icon}</div>
+                  <div className={styles.recordContent}>
+                    <div className={styles.recordHeader}>
+                      <span className={styles.recordLabel}>{label}</span>
+                      <span className={styles.recordDate}>{formatDate(record.createdAt)}</span>
+                    </div>
+                    <p className={styles.recordText}>
+                      {typeof content === 'object' && content.summary 
+                        ? content.summary 
+                        : typeof content === 'object' && content.type
+                          ? content.type
+                          : content}
+                    </p>
+                    {typeof content === 'object' && content.matches && content.matches.length > 0 && (
+                      <div className={styles.recordTags}>
+                        {content.matches.slice(0, 3).map((m: any, i: number) => (
+                          <span key={i} className={styles.recordTag}>{m}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button className={styles.recordDelete} onClick={() => handleDeleteRecord(record.id)}>
+                    ✕
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </section>
     </div>
   )

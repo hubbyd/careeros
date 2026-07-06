@@ -1,36 +1,27 @@
 .page {
-  padding: 0 0 16px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* === Hero Card === */
-.heroCard {
+.heroSection {
   position: relative;
-  margin: 12px 12px 0;
-  padding: 24px 20px;
-  border-radius: var(--r-xl);
-  background: var(--gradient-energy);
-  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
   overflow: hidden;
 }
 
-.heroBg1, .heroBg2 {
+.heroBg {
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.heroBg1 {
+  top: -50%;
+  right: -20%;
   width: 200px;
   height: 200px;
-  top: -60px;
-  right: -40px;
-}
-
-.heroBg2 {
-  width: 120px;
-  height: 120px;
-  bottom: -30px;
-  left: -20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  filter: blur(40px);
 }
 
 .heroContent {
@@ -42,227 +33,313 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.heroLeft {
+  color: white;
 }
 
 .heroGreeting {
-  font-size: var(--fs-lg);
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .heroSub {
-  font-size: var(--fs-sm);
-  opacity: 0.85;
-  margin-top: 4px;
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .streakBadge {
   display: flex;
   align-items: center;
-  gap: 2px;
   background: rgba(255, 255, 255, 0.2);
-  padding: 6px 12px;
-  border-radius: var(--r-full);
-  backdrop-filter: blur(4px);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
 }
 
 .fire {
-  font-size: 18px;
-  animation: fireWiggle 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes fireWiggle {
-  from { transform: scale(1) rotate(-5deg); }
-  to { transform: scale(1.15) rotate(5deg); }
+  margin-right: 4px;
 }
 
 .streakNum {
-  font-size: var(--fs-xl);
-  font-weight: 900;
+  font-size: 18px;
+  font-weight: 700;
+  margin-right: 4px;
 }
 
 .streakLabel {
-  font-size: var(--fs-xs);
+  font-size: 12px;
   opacity: 0.9;
 }
 
 .heroStats {
   display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: var(--r-md);
-  padding: 12px 0;
+  gap: 16px;
 }
 
-.statItem {
+.statCard {
   flex: 1;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 16px;
+  border-radius: 12px;
+  color: white;
+}
+
+.statIcon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
 }
 
 .statNum {
-  font-size: var(--fs-xl);
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .statLabel {
-  font-size: var(--fs-xs);
+  font-size: 12px;
   opacity: 0.8;
-  margin-top: 2px;
 }
 
-.statDivider {
-  width: 1px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* === Quick Grid === */
-.quickGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 16px 12px 0;
-}
-
-.quickItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 4px;
-  background: var(--surface);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-sm);
-  text-decoration: none;
-  color: inherit;
-  transition: transform 200ms ease;
-}
-
-.quickItem:active {
-  transform: scale(0.96);
-}
-
-.quickIcon {
-  font-size: 28px;
-  line-height: 1;
-}
-
-.quickLabel {
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-/* === Section === */
 .section {
-  padding: 16px 12px 0;
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .sectionTitle {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: var(--dark);
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
 }
 
-/* === Todo List === */
+.sectionSub {
+  font-size: 12px;
+  color: #666;
+}
+
+.aiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.aiCard {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.aiCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.aiIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.aiIconPurple {
+  background: linear-gradient(135deg, #e9d5ff, #ddd6fe);
+}
+
+.aiIconBlue {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.aiIconGreen {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+}
+
+.aiIconOrange {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+}
+
+.aiContent {
+  flex: 1;
+}
+
+.aiTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a2e;
+}
+
+.aiDesc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.aiArrow {
+  align-self: flex-end;
+  margin-top: 12px;
+  font-size: 16px;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.progressCard {
+  padding: 20px;
+}
+
+.progressRow {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.progressItem {
+  flex: 1;
+}
+
+.progressLabel {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.progressValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.viewBtn {
+  width: 100%;
+}
+
+.todoCard {
+  padding: 20px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.emptyIcon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #666;
+}
+
 .todoList {
-  background: var(--surface);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .todoItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border-soft);
+  gap: 12px;
   cursor: pointer;
 }
 
-.todoItem:last-child {
-  border-bottom: none;
-}
-
 .todoCheck {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--primary);
-  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 .todoTitle {
-  font-size: var(--fs-base);
-  transition: all 200ms;
+  font-size: 14px;
+  color: #1a1a2e;
 }
 
 .todoDone {
   text-decoration: line-through;
-  color: var(--text-tertiary);
+  color: #999;
 }
 
-.empty {
-  padding: 24px;
-  text-align: center;
-  color: var(--text-tertiary);
-  font-size: var(--fs-sm);
-}
-
-/* === Progress Card === */
-.progressCard {
-  background: var(--surface);
-  border-radius: var(--r-lg);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
-}
-
-.progressHeader {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.progressPct {
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.progressBarBg {
-  height: 8px;
-  background: var(--bg-soft);
-  border-radius: var(--r-full);
-  overflow: hidden;
-}
-
-.progressBarFill {
-  height: 100%;
-  background: var(--gradient-primary);
-  border-radius: var(--r-full);
-  transition: width 800ms ease;
-}
-
-/* === Quote Card === */
 .quoteCard {
-  background: var(--surface);
-  border-radius: var(--r-lg);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
   display: flex;
-  gap: 10px;
   align-items: flex-start;
+  padding: 20px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: none;
 }
 
 .quoteIcon {
-  font-size: 22px;
-  flex-shrink: 0;
+  font-size: 28px;
+  margin-right: 16px;
+}
+
+.quoteContent {
+  flex: 1;
 }
 
 .quoteText {
-  font-size: var(--fs-base);
-  color: var(--text-secondary);
+  font-size: 15px;
+  color: #92400e;
+  font-style: italic;
   line-height: 1.6;
+  margin: 0;
+}
+
+.quoteFooter {
+  font-size: 12px;
+  color: #b45309;
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .heroStats {
+    flex-direction: column;
+  }
+  
+  .progressRow {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .aiGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .heroTop {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .streakBadge {
+    align-self: flex-start;
+  }
 }
