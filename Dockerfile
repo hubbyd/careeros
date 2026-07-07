@@ -43,4 +43,4 @@ ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "DATABASE_URL=file:/app/data/jobsprint.db cd server && npx prisma migrate deploy && DATABASE_URL=file:/app/data/jobsprint.db node dist/index.js"]
