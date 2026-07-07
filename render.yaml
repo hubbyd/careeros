@@ -13,3 +13,11 @@ services:
         generateValue: true
       - key: DATABASE_URL
         value: "file:/app/data/jobsprint.db"
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: GROQ_API_KEY
+        fromSecret: groq-api-key
+      - key: DEEPSEEK_API_KEY
+        fromSecret: deepseek-api-key
+      - key: ALIYUN_API_KEY
+        fromSecret: aliyun-api-key

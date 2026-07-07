@@ -5,8 +5,14 @@ export default defineConfig({
   plugins: [react()],
   base: './',  // Use relative paths for built files
   server: {
-    port: 3000,
+    port: 5173,
     open: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     outDir: 'dist',

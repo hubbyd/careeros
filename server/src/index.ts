@@ -12,6 +12,7 @@ import resumeRoutes from './routes/resume'
 import interviewRoutes from './routes/interview'
 import learningRoutes from './routes/learning'
 import growthRoutes from './routes/growth'
+import aiRoutes from './routes/ai'
 
 dotenv.config()
 
@@ -20,8 +21,16 @@ const PORT = process.env.PORT || 3001
 const isProduction = process.env.NODE_ENV === 'production'
 
 // 中间件
-const corsOrigin = isProduction ? true : 'http://localhost:5173'
-app.use(cors({ origin: corsOrigin }))
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://jobsprint.pages.dev',
+  'https://*.pages.dev',
+]
+const corsOrigin = isProduction 
+  ? (origin: string | undefined) => origin && allowedOrigins.some(o => origin.startsWith(o.replace('*', '')))
+  : 'http://localhost:5173'
+app.use(cors({ origin: corsOrigin, credentials: true }))
 app.use(express.json())
 
 // 生产环境下提供前端静态文件
@@ -52,6 +61,7 @@ app.use('/api/resume', resumeRoutes)
 app.use('/api/interview', interviewRoutes)
 app.use('/api/learning', learningRoutes)
 app.use('/api/growth', growthRoutes)
+app.use('/api/ai', aiRoutes)
 
 // 错误处理
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

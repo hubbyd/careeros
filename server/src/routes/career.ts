@@ -55,7 +55,7 @@ router.post('/diagnosis', authMiddleware, async (req: AuthRequest, res: Response
         content: JSON.stringify({
           type: '职业诊断',
           summary: result.summary,
-          matches: result.matches.slice(0, 3).map(m => m.title),
+          matches: result.matches.slice(0, 3).map((m: { title: string }) => m.title),
         }),
       },
     })

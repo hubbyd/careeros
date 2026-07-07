@@ -66,6 +66,12 @@ export interface UserProfile {
   avatar: string;
   streak: number;
   joinDate: string;
+  createdAt?: string;
+  bio?: string;
+  location?: string;
+  education?: string;
+  experience?: string;
+  skills?: string[];
 }
 
 export interface CareerMatch {

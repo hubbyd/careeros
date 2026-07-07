@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
+import { RocketIcon } from '../../components/Icons'
 import styles from './AuthPage.module.css'
 
 export default function RegisterPage() {
@@ -23,7 +24,7 @@ export default function RegisterPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}>🚀</div>
+        <div className={styles.logo}><RocketIcon size={48} /></div>
         <h1 className={styles.title}>求职冲刺</h1>
         <p className={styles.subtitle}>创建你的账号</p>
 

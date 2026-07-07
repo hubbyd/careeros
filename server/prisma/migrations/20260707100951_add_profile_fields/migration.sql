@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "bio" TEXT;
+ALTER TABLE "User" ADD COLUMN "education" TEXT;
+ALTER TABLE "User" ADD COLUMN "experience" TEXT;
+ALTER TABLE "User" ADD COLUMN "location" TEXT;
+ALTER TABLE "User" ADD COLUMN "skills" TEXT;
+ALTER TABLE "User" ADD COLUMN "title" TEXT;

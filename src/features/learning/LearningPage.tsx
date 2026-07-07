@@ -4,6 +4,7 @@ import Card from '../../components/Card/Card'
 import Button from '../../components/Button/Button'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import Tag from '../../components/Tag/Tag'
+import { SearchIcon, BookIcon } from '../../components/Icons'
 import type { LearningPlan } from '../../types'
 import styles from './LearningPage.module.css'
 
@@ -243,8 +244,8 @@ export default function LearningPage() {
         <>
           <div className={styles.tabs}>
             {[
-              { key: 'discover', label: '探索', icon: '🔍' },
-              { key: 'my', label: '我的学习', icon: '📝' },
+              { key: 'discover', label: '探索', icon: <SearchIcon size={20} /> },
+              { key: 'my', label: '我的学习', icon: <BookIcon size={20} /> },
             ].map(tab => (
               <button
                 key={tab.key}

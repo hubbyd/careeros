@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
+import { RocketIcon } from '../../components/Icons'
 import styles from './AuthPage.module.css'
 
 export default function LoginPage() {
@@ -22,7 +23,7 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}>🚀</div>
+        <div className={styles.logo}><RocketIcon size={48} /></div>
         <h1 className={styles.title}>求职冲刺</h1>
         <p className={styles.subtitle}>登录你的账号</p>
 
@@ -53,6 +54,9 @@ export default function LoginPage() {
               placeholder="请输入密码"
               required
             />
+          </div>
+          <div className={styles.forgotPassword}>
+            <a href="/forgot-password">忘记密码？</a>
           </div>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? '登录中...' : '登录'}

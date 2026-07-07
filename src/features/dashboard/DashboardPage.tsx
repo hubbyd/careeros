@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useTodoStore } from '../../stores/useTodoStore'
 import { useUserStore } from '../../stores/useUserStore'
 import { useStudyStore } from '../../stores/useStudyStore'
@@ -7,14 +8,22 @@ import Card from '../../components/Card/Card'
 import Button from '../../components/Button/Button'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import Tag from '../../components/Tag/Tag'
+import { ProfileIcon, TargetIcon, BookIcon, MessageIcon, FileIcon, CheckIcon, ClockIcon, BriefcaseIcon, ZapIcon, PlusIcon } from '../../components/Icons'
 import styles from './DashboardPage.module.css'
 
 export default function DashboardPage() {
-  const { todos, addTodo } = useTodoStore()
+  const { todos, addTodo, fetchTodos } = useTodoStore()
   const { user } = useUserStore()
-  const { plans, streak, sessions } = useStudyStore()
-  const { applications } = useApplicationStore()
+  const { plans, streak, sessions, fetchStreak, fetchSessions } = useStudyStore()
+  const { applications, fetchApplications } = useApplicationStore()
   const greeting = useGreeting()
+
+  useEffect(() => {
+    fetchTodos()
+    fetchStreak()
+    fetchSessions()
+    fetchApplications()
+  }, [])
 
   const pendingTodos = todos.filter(t => !t.completed)
   const completedPlans = plans.filter(p => p.completed).length
@@ -42,35 +51,35 @@ export default function DashboardPage() {
           {user?.avatar ? (
             <img src={user.avatar} alt="Avatar" className={styles.avatar} />
           ) : (
-            <div className={styles.avatarPlaceholder}>👤</div>
+            <ProfileIcon size={48} className={styles.avatarPlaceholder} />
           )}
         </div>
       </div>
 
       <div className={styles.quickStats}>
         <Card className={styles.statCard}>
-          <div className={styles.statIcon}>📋</div>
+          <ClockIcon size={28} className={styles.statIcon} />
           <div className={styles.statInfo}>
             <span className={styles.statValue}>{pendingTodos.length}</span>
             <span className={styles.statLabel}>待办事项</span>
           </div>
         </Card>
         <Card className={styles.statCard}>
-          <div className={styles.statIcon}>🔥</div>
+          <ZapIcon size={28} className={styles.statIcon} />
           <div className={styles.statInfo}>
             <span className={styles.statValue}>{streak.current}</span>
             <span className={styles.statLabel}>连续打卡</span>
           </div>
         </Card>
         <Card className={styles.statCard}>
-          <div className={styles.statIcon}>💼</div>
+          <BriefcaseIcon size={28} className={styles.statIcon} />
           <div className={styles.statInfo}>
             <span className={styles.statValue}>{applications.length}</span>
             <span className={styles.statLabel}>求职申请</span>
           </div>
         </Card>
         <Card className={styles.statCard}>
-          <div className={styles.statIcon}>📚</div>
+          <BookIcon size={28} className={styles.statIcon} />
           <div className={styles.statInfo}>
             <span className={styles.statValue}>{totalMinutes}</span>
             <span className={styles.statLabel}>今日学习(分钟)</span>
@@ -82,12 +91,15 @@ export default function DashboardPage() {
         <div className={styles.leftPanel}>
           <Card className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>📝 今日待办</h2>
-              <Button size="sm" onClick={() => addTodo('新任务')}>+ 添加</Button>
+              <h2 className={styles.sectionTitle}>
+                <FileIcon size={20} className={styles.sectionIcon} />
+                今日待办
+              </h2>
+              <Button size="sm" onClick={() => addTodo('新任务')} icon={<PlusIcon size={16} />}>+ 添加</Button>
             </div>
             {pendingTodos.length === 0 ? (
               <div className={styles.emptyState}>
-                <span>✅</span>
+                <CheckIcon size={32} className={styles.emptyIcon} />
                 <span>今日暂无待办，真棒！</span>
               </div>
             ) : (
@@ -104,7 +116,10 @@ export default function DashboardPage() {
 
           <Card className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>📚 学习计划</h2>
+              <h2 className={styles.sectionTitle}>
+                <BookIcon size={20} className={styles.sectionIcon} />
+                学习计划
+              </h2>
             </div>
             <div className={styles.planProgress}>
               <ProgressBar progress={plans.length > 0 ? Math.round((completedPlans / plans.length) * 100) : 0} size="md" />
@@ -118,6 +133,12 @@ export default function DashboardPage() {
                   <Tag color="info">{plan.subject}</Tag>
                 </li>
               ))}
+              {plans.length === 0 && (
+                <div className={styles.emptyState}>
+                  <FileIcon size={32} className={styles.emptyIcon} />
+                  <span>暂无学习计划</span>
+                </div>
+              )}
             </ul>
           </Card>
         </div>
@@ -125,11 +146,14 @@ export default function DashboardPage() {
         <div className={styles.rightPanel}>
           <Card className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>💼 最近申请</h2>
+              <h2 className={styles.sectionTitle}>
+                <BriefcaseIcon size={20} className={styles.sectionIcon} />
+                最近申请
+              </h2>
             </div>
             {applications.length === 0 ? (
               <div className={styles.emptyState}>
-                <span>💼</span>
+                <BriefcaseIcon size={32} className={styles.emptyIcon} />
                 <span>还没有求职申请</span>
               </div>
             ) : (
@@ -152,23 +176,26 @@ export default function DashboardPage() {
 
           <Card className={styles.sectionCard}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>🎯 快捷入口</h2>
+              <h2 className={styles.sectionTitle}>
+                <TargetIcon size={20} className={styles.sectionIcon} />
+                快捷入口
+              </h2>
             </div>
             <div className={styles.shortcutGrid}>
               <button className={styles.shortcutBtn} onClick={() => window.location.href = '/career'}>
-                <span className={styles.shortcutIcon}>🤖</span>
+                <TargetIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>职业诊断</span>
               </button>
               <button className={styles.shortcutBtn} onClick={() => window.location.href = '/learning'}>
-                <span className={styles.shortcutIcon}>📚</span>
+                <BookIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>学习路线</span>
               </button>
               <button className={styles.shortcutBtn} onClick={() => window.location.href = '/interview'}>
-                <span className={styles.shortcutIcon}>💬</span>
+                <MessageIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>模拟面试</span>
               </button>
               <button className={styles.shortcutBtn} onClick={() => window.location.href = '/resume'}>
-                <span className={styles.shortcutIcon}>📝</span>
+                <FileIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>简历优化</span>
               </button>
             </div>

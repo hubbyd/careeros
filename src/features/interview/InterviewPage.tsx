@@ -4,6 +4,7 @@ import Card from '../../components/Card/Card'
 import Button from '../../components/Button/Button'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import Tag from '../../components/Tag/Tag'
+import { AiIcon, TargetIcon, Building2Icon, MessageSquareIcon, FileIcon, BarChart3Icon, TrophyIcon, CheckCircleIcon, XCircleIcon, LightbulbIcon, SendIcon } from '../../components/Icons'
 import type { InterviewQuestion, InterviewFeedback, InterviewReport, InterviewSession } from '../../types'
 import styles from './InterviewPage.module.css'
 

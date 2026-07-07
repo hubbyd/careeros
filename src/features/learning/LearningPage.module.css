@@ -1,52 +1,84 @@
-.page { padding: 16px 16px 80px; max-width: 600px; margin: 0 auto; }
+.page { 
+  padding: var(--sp-5) var(--sp-5) var(--sp-20); 
+  max-width: 800px; 
+  margin: 0 auto; 
+}
 
-/* === Create === */
-.create { text-align: center; }
+.create { 
+  text-align: center; 
+  padding: var(--sp-8) 0;
+}
 
-.createIcon { font-size: 64px; margin-bottom: 16px; }
+.createIcon { 
+  font-size: 72px; 
+  margin-bottom: var(--sp-4);
+  animation: floatSlow 4s ease-in-out infinite;
+}
 
-.createTitle { font-size: 28px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 
-.createDesc { font-size: var(--fs-base); color: var(--text-secondary); margin-bottom: 24px; }
+.createTitle { 
+  font-size: var(--fs-3xl); 
+  font-weight: 800; 
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-2); 
+}
 
-.createCard { padding: 24px; }
+.createDesc { 
+  font-size: var(--fs-md); 
+  color: var(--text-secondary); 
+  margin-bottom: var(--sp-6); 
+}
 
-.formGroup { margin-bottom: 20px; }
+.createCard { 
+  padding: var(--sp-6); 
+}
+
+.formGroup { 
+  margin-bottom: var(--sp-5); 
+}
 
 .formLabel {
   display: block;
   font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--dark);
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
   text-align: left;
 }
 
 .formInput {
   width: 100%;
-  padding: 12px;
+  padding: var(--sp-3);
   border: 1.5px solid var(--border);
   border-radius: var(--r-lg);
   font-size: var(--fs-base);
   background: var(--surface);
   color: var(--dark);
   box-sizing: border-box;
+  transition: all var(--transition-fast);
 }
 
 .formInput:focus {
   outline: none;
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px var(--purple-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 .formOptions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .formOpt {
-  padding: 8px 16px;
+  padding: var(--sp-2) var(--sp-4);
   border-radius: var(--r-md);
   border: 1.5px solid var(--border-soft);
   background: var(--surface);
@@ -54,19 +86,26 @@
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: all var(--transition-fast);
 }
 
-.formOpt:hover { border-color: var(--purple); color: var(--purple); }
+.formOpt:hover { 
+  border-color: var(--primary); 
+  color: var(--primary); 
+}
 
 .formOptActive {
-  background: var(--purple);
+  background: var(--primary);
   color: white;
-  border-color: var(--purple);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px var(--primary-glow);
 }
 
-/* === Plans === */
-.plans { display: flex; flex-direction: column; gap: 16px; }
+.plans { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--sp-4); 
+}
 
 .plansHeader {
   display: flex;
@@ -75,7 +114,7 @@
 }
 
 .plansTitle {
-  font-size: 24px;
+  font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--dark);
 }
@@ -84,28 +123,48 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 20px;
+  gap: var(--sp-3);
+  padding: var(--sp-12) var(--sp-5);
   background: var(--bg-soft);
   border-radius: var(--r-xl);
 }
 
-.emptyIcon { font-size: 48px; }
+.emptyIcon { 
+  font-size: 56px; 
+  animation: float 3s ease-in-out infinite;
+}
 
-.emptyText { font-size: var(--fs-base); color: var(--text-secondary); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
 
-.planList { display: flex; flex-direction: column; gap: 12px; }
+.emptyText { 
+  font-size: var(--fs-md); 
+  color: var(--text-secondary); 
+}
 
-.planCard { padding: 16px; }
+.planList { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--sp-3); 
+}
+
+.planCard { 
+  padding: var(--sp-4); 
+}
 
 .planHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
-.planInfo { display: flex; flex-direction: column; }
+.planInfo { 
+  display: flex; 
+  flex-direction: column; 
+}
 
 .planJob {
   font-size: var(--fs-base);
@@ -121,42 +180,57 @@
 .planProgressText {
   font-size: var(--fs-base);
   font-weight: 700;
-  color: var(--purple);
+  color: var(--primary);
 }
 
 .planMeta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 12px;
+  margin-top: var(--sp-3);
 }
 
-.planDate { font-size: var(--fs-xs); color: var(--text-tertiary); }
+.planDate { 
+  font-size: var(--fs-xs); 
+  color: var(--text-tertiary); 
+}
 
-.planActions { display: flex; gap: 8px; }
+.planActions { 
+  display: flex; 
+  gap: var(--sp-2); 
+}
 
-/* === Detail === */
-.detail { display: flex; flex-direction: column; gap: 16px; }
+.detail { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--sp-4); 
+}
 
 .detailHeader {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 
 .backBtn {
-  padding: 6px 12px;
+  padding: var(--sp-2) var(--sp-3);
   font-size: var(--fs-sm);
   color: var(--text-secondary);
   background: var(--bg-soft);
   border: none;
   border-radius: var(--r-md);
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: var(--border);
+  color: var(--text);
 }
 
 .detailTitle {
   flex: 1;
-  font-size: 20px;
+  font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--dark);
 }
@@ -165,35 +239,42 @@
   font-size: var(--fs-sm);
   font-weight: 700;
   color: white;
-  background: var(--purple);
-  padding: 4px 12px;
+  background: var(--gradient-primary);
+  padding: var(--sp-1) var(--sp-3);
   border-radius: var(--r-full);
 }
 
-.detailCard { padding: 20px; }
+.detailCard { 
+  padding: var(--sp-5); 
+}
 
-.detailInfo { margin-bottom: 16px; }
+.detailInfo { 
+  margin-bottom: var(--sp-4); 
+}
 
 .detailJob {
-  font-size: 20px;
+  font-size: var(--fs-xl);
   font-weight: 800;
   color: var(--dark);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 
 .detailMeta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-3);
 }
 
-.detailDate { font-size: var(--fs-sm); color: var(--text-tertiary); }
+.detailDate { 
+  font-size: var(--fs-sm); 
+  color: var(--text-tertiary); 
+}
 
 .detailStats {
   display: flex;
   justify-content: space-around;
-  margin-top: 20px;
-  padding-top: 16px;
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-4);
   border-top: 1px solid var(--border-soft);
 }
 
@@ -204,9 +285,12 @@
 }
 
 .statNum {
-  font-size: 24px;
+  font-size: var(--fs-2xl);
   font-weight: 800;
-  color: var(--purple);
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .statLabel {
@@ -214,14 +298,15 @@
   color: var(--text-tertiary);
 }
 
-/* === Phase Card === */
-.phaseCard { padding: 20px; }
+.phaseCard { 
+  padding: var(--sp-5); 
+}
 
 .phaseHeader {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
 }
 
 .phaseIcon {
@@ -231,12 +316,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--fs-base);
   font-weight: 800;
   color: white;
+  background: var(--gradient-primary);
 }
 
-.phaseInfo { display: flex; flex-direction: column; }
+.phaseInfo { 
+  display: flex; 
+  flex-direction: column; 
+}
 
 .phaseTitle {
   font-size: var(--fs-base);
@@ -249,10 +338,9 @@
   color: var(--text-tertiary);
 }
 
-/* === Objectives === */
 .phaseObjectives {
-  margin-bottom: 16px;
-  padding: 12px;
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3);
   background: var(--bg-soft);
   border-radius: var(--r-lg);
 }
@@ -262,7 +350,7 @@
   font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--dark);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 
 .objectivesList {
@@ -273,44 +361,54 @@
 
 .objectiveItem {
   font-size: var(--fs-sm);
-  color: var(--text-primary);
-  padding: 4px 0;
+  color: var(--text);
+  padding: var(--sp-1) 0;
 }
 
-/* === Tasks === */
-.phaseTasks { margin-top: 12px; }
+.phaseTasks { 
+  margin-top: var(--sp-3); 
+}
 
 .tasksLabel {
   display: block;
   font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--dark);
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 
-.tasksList { display: flex; flex-direction: column; gap: 6px; }
+.tasksList { 
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--sp-1); 
+}
 
 .taskItem {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
   background: var(--bg-soft);
   border-radius: var(--r-md);
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.taskItem:hover {
+  background: var(--primary-soft);
 }
 
 .taskCheck {
   margin-top: 3px;
   width: 18px;
   height: 18px;
-  accent-color: var(--purple);
+  accent-color: var(--primary);
 }
 
 .taskText {
   flex: 1;
   font-size: var(--fs-sm);
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .taskDone {
@@ -318,25 +416,532 @@
   color: var(--text-tertiary);
 }
 
-/* === Resources === */
 .resourcesTitle {
   font-size: var(--fs-base);
   font-weight: 700;
   color: var(--dark);
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
 }
 
 .resourcesList {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
-/* === Detail Footer === */
 .detailFooter {
   display: flex;
-  gap: 12px;
-  margin-top: 8px;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
 }
 
-.detailFooter Button { flex: 1; }
+.detailFooter Button { 
+  flex: 1; 
+}
+
+.tabs {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-6);
+  background: var(--bg-soft);
+  padding: var(--sp-1);
+  border-radius: var(--r-xl);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border: none;
+  border-radius: var(--r-lg);
+  background: transparent;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab:hover {
+  background: var(--border-soft);
+}
+
+.tabActive {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionHeader {
+  margin-bottom: var(--sp-6);
+}
+
+.sectionTitle {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-2);
+}
+
+.sectionDesc {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.pathList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.pathCard {
+  padding: var(--sp-5);
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border-soft);
+  transition: all var(--transition-normal);
+}
+
+.pathCard:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.pathHeader {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.pathIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-lg);
+  background: var(--primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+}
+
+.pathInfo {
+  flex: 1;
+}
+
+.pathTitle {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--sp-1);
+}
+
+.pathTimeline {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.pathDate {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.pathProgress {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.progressText {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.pathActions {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-12) var(--sp-5);
+  background: var(--bg-soft);
+  border-radius: var(--r-xl);
+  margin-top: var(--sp-6);
+}
+
+.emptyState span:first-child {
+  font-size: 56px;
+}
+
+.emptyState p {
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+}
+
+.pathDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.backBtn {
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  background: var(--bg-soft);
+  border: none;
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.detailTitle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.detailTitle h1 {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--text);
+}
+
+.detailIcon {
+  font-size: var(--fs-xl);
+}
+
+.detailInfo {
+  padding: var(--sp-5);
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border-soft);
+}
+
+.detailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.detailMetaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.detailProgress {
+  margin-bottom: var(--sp-4);
+}
+
+.detailProgressLabel {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+.detailProgressBar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.detailProgressText {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 40px;
+}
+
+.progressSlider {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--border);
+  appearance: none;
+  cursor: pointer;
+}
+
+.progressSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 10px var(--primary-glow);
+}
+
+.courseList {
+  padding: var(--sp-5);
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border-soft);
+}
+
+.courseListTitle {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--sp-4);
+}
+
+.phases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.phaseCard {
+  padding: var(--sp-4);
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+}
+
+.phaseHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.phaseNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: white;
+}
+
+.phaseName {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.phaseDuration {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-3);
+}
+
+.phaseObjectives {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--sp-2);
+}
+
+.phaseTasks {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.phaseList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.phaseItem {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  padding: var(--sp-2) 0;
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+  transition: all var(--transition-fast);
+}
+
+.taskItem:hover {
+  background: var(--primary-soft);
+}
+
+.taskCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.taskText {
+  flex: 1;
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: var(--sp-6) var(--sp-6) var(--sp-8);
+    max-width: 1000px;
+  }
+
+  .create {
+    padding: var(--sp-10) 0;
+  }
+
+  .createIcon {
+    font-size: 80px;
+  }
+
+  .createTitle {
+    font-size: var(--fs-4xl);
+  }
+
+  .createDesc {
+    font-size: var(--fs-lg);
+  }
+
+  .createCard {
+    padding: var(--sp-8);
+  }
+
+  .formLabel {
+    font-size: var(--fs-base);
+    margin-bottom: var(--sp-4);
+  }
+
+  .formInput {
+    padding: var(--sp-4);
+    font-size: var(--fs-md);
+  }
+
+  .formOpt {
+    padding: var(--sp-3) var(--sp-6);
+    font-size: var(--fs-base);
+  }
+
+  .plansTitle {
+    font-size: var(--fs-2xl);
+  }
+
+  .planCard {
+    padding: var(--sp-5);
+  }
+
+  .planJob {
+    font-size: var(--fs-md);
+  }
+
+  .planProgressText {
+    font-size: var(--fs-md);
+  }
+
+  .detailTitle {
+    font-size: var(--fs-2xl);
+  }
+
+  .detailCard {
+    padding: var(--sp-6);
+  }
+
+  .detailJob {
+    font-size: var(--fs-2xl);
+  }
+
+  .detailDate {
+    font-size: var(--fs-base);
+  }
+
+  .statNum {
+    font-size: var(--fs-3xl);
+  }
+
+  .statLabel {
+    font-size: var(--fs-sm);
+  }
+
+  .phaseCard {
+    padding: var(--sp-6);
+  }
+
+  .phaseIcon {
+    width: 44px;
+    height: 44px;
+    font-size: var(--fs-lg);
+  }
+
+  .phaseTitle {
+    font-size: var(--fs-md);
+  }
+
+  .phaseDuration {
+    font-size: var(--fs-sm);
+  }
+
+  .objectivesLabel {
+    font-size: var(--fs-base);
+  }
+
+  .objectiveItem {
+    font-size: var(--fs-base);
+  }
+
+  .tasksLabel {
+    font-size: var(--fs-base);
+  }
+
+  .taskItem {
+    padding: var(--sp-4);
+  }
+
+  .taskText {
+    font-size: var(--fs-base);
+  }
+
+  .resourcesTitle {
+    font-size: var(--fs-lg);
+  }
+}

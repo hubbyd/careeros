@@ -1,15 +1,18 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
 import { useStudyStore } from '../../stores/useStudyStore'
+import { HomeIcon, KanbanIcon, AiIcon, InterviewIcon, ProfileIcon } from '../../components/Icons'
 import styles from './TabBar.module.css'
 
-const tabs = [
-  { path: '/', label: '首页', icon: '🏠' },
-  { path: '/kanban', label: '求职', icon: '📋' },
-  { path: '/study', label: '学习', icon: '⏱️' },
-  { path: '/interview', label: '面试', icon: '🎤' },
-  { path: '/profile', label: '我的', icon: '👤' },
-] as const
+type TabIcon = React.ReactNode
+
+const tabs: { path: string; label: string; icon: TabIcon }[] = [
+  { path: '/', label: '首页', icon: <HomeIcon size={24} /> },
+  { path: '/kanban', label: '求职', icon: <KanbanIcon size={24} /> },
+  { path: '/ai', label: 'AI助手', icon: <AiIcon size={24} /> },
+  { path: '/interview', label: '面试', icon: <InterviewIcon size={24} /> },
+  { path: '/profile', label: '我的', icon: <ProfileIcon size={24} /> },
+]
 
 export default function TabBar() {
   const location = useLocation()
@@ -31,8 +34,8 @@ export default function TabBar() {
         >
           <span className={styles.tabIcon}>{tab.icon}</span>
           <span className={styles.tabLabel}>{tab.label}</span>
-          {tab.path === '/study' && streakCurrent >= 7 && (
-            <span className={styles.streakBadge}>{streakCurrent}</span>
+          {tab.path === '/ai' && (
+            <span className={styles.aiBadge}>NEW</span>
           )}
         </button>
       ))}

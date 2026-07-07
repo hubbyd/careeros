@@ -1,413 +1,480 @@
-import OpenAI from 'openai';
-
-let openai: OpenAI | null = null;
-
-function getOpenAI(): OpenAI | null {
-  if (!openai && process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  }
-  return openai;
+export interface ModelConfig {
+  name: string;
+  provider: string;
+  model: string;
+  baseUrl?: string;
+  description: string;
+  free: boolean;
+  freeTier: boolean;
+  signUpUrl: string;
 }
 
-interface CareerDiagnosisInput {
-  skills: { name: string; level: number }[];
+const defaultModels: ModelConfig[] = [
+  {
+    name: 'Qwen-Turbo',
+    provider: 'aliyun',
+    model: 'qwen-turbo',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    description: '阿里云通义千问Turbo，响应快，免费额度充足，国内可用',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://dashscope.console.aliyun.com/',
+  },
+  {
+    name: 'Qwen-Plus',
+    provider: 'aliyun',
+    model: 'qwen-plus',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    description: '阿里云通义千问Plus，推理能力强，国内可用',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://dashscope.console.aliyun.com/',
+  },
+  {
+    name: 'ERNIE-4.0',
+    provider: 'baidu',
+    model: 'ernie-4.0',
+    baseUrl: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro',
+    description: '百度文心一言4.0，中文能力强，国内可用',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://console.bce.baidu.com/qianfan/',
+  },
+  {
+    name: 'ERNIE-3.5',
+    provider: 'baidu',
+    model: 'ernie-3.5',
+    baseUrl: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro',
+    description: '百度文心一言3.5，响应快，国内可用',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://console.bce.baidu.com/qianfan/',
+  },
+  {
+    name: 'Doubao-8K',
+    provider: 'bytedance',
+    model: 'doubao-8k',
+    baseUrl: 'https://ark.bytedance.net/api/open/v1/ai/text',
+    description: '字节跳动豆包8K，响应快，国内可用',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://ark.bytedance.net/',
+  },
+  {
+    name: 'DeepSeek-R1',
+    provider: 'deepseek',
+    model: 'deepseek-r1',
+    baseUrl: 'https://api.deepseek.com/v1',
+    description: 'DeepSeek R1大模型，推理能力强，免费额度充足',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://platform.deepseek.com/api_keys',
+  },
+  {
+    name: 'DeepSeek-R1-Lite',
+    provider: 'deepseek',
+    model: 'deepseek-r1-lite',
+    baseUrl: 'https://api.deepseek.com/v1',
+    description: 'DeepSeek R1轻量版，响应快，免费额度充足',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://platform.deepseek.com/api_keys',
+  },
+  {
+    name: 'Groq-Llama-3.3-70B',
+    provider: 'groq',
+    model: 'llama-3.3-70b-versatile',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    description: 'Groq Llama 3.3 70B，极速响应（需海外网络）',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://console.groq.com/keys',
+  },
+  {
+    name: 'Groq-Llama-3.3-8B',
+    provider: 'groq',
+    model: 'llama-3.3-8b',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    description: 'Groq Llama 3.3 8B，极速响应（需海外网络）',
+    free: false,
+    freeTier: true,
+    signUpUrl: 'https://console.groq.com/keys',
+  },
+  {
+    name: 'GPT-4o-mini',
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    description: 'OpenAI GPT-4o-mini，性能均衡（需海外网络）',
+    free: false,
+    freeTier: false,
+    signUpUrl: 'https://platform.openai.com/api-keys',
+  },
+];
+
+export function getAvailableModels(): ModelConfig[] {
+  return defaultModels;
+}
+
+export function getDefaultModel(): ModelConfig | null {
+  const available = defaultModels.filter(m => {
+    const apiKeyEnv = `${m.provider.toUpperCase()}_API_KEY`;
+    return process.env[apiKeyEnv];
+  });
+  return available[0] || defaultModels.find(m => m.freeTier) || null;
+}
+
+export function getModelByProvider(provider: string): ModelConfig | undefined {
+  return defaultModels.find(m => m.provider === provider);
+}
+
+function getAuthHeaders(provider: string): { Authorization: string } | null {
+  const apiKey = process.env[`${provider.toUpperCase()}_API_KEY`];
+  if (apiKey) {
+    return { Authorization: `Bearer ${apiKey}` };
+  }
+  return null;
+}
+
+async function callAiApi(prompt: string, modelConfig?: ModelConfig, apiKey?: string): Promise<string> {
+  const model = modelConfig || getDefaultModel();
+  if (!model) {
+    return '未配置任何AI模型';
+  }
+
+  const authHeaders = apiKey ? { Authorization: `Bearer ${apiKey}` } : getAuthHeaders(model.provider);
+  if (!authHeaders) {
+    return `${model.name} 未配置API密钥`;
+  }
+
+  try {
+    const response = await fetch(`${model.baseUrl || 'https://api.openai.com/v1'}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      },
+      body: JSON.stringify({
+        model: model.model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+    });
+
+    const data = await response.json() as { error?: { message: string }; choices?: { message: { content: string } }[] };
+    
+    if (!response.ok) {
+      const errorMsg = data.error?.message || 'API调用失败';
+      return `错误: ${errorMsg}`;
+    }
+
+    return data.choices?.[0]?.message?.content || '未获取到响应';
+  } catch {
+    return 'AI服务暂时不可用';
+  }
+}
+
+export async function chatCompletion(
+  messages: { role: string; content: string }[],
+  modelConfig?: ModelConfig,
+  userApiKey?: string
+): Promise<string> {
+  const model = modelConfig || getDefaultModel();
+  if (!model) {
+    return '未配置任何AI模型，请联系管理员';
+  }
+
+  const authHeaders = userApiKey ? { Authorization: `Bearer ${userApiKey}` } : getAuthHeaders(model.provider);
+  if (!authHeaders) {
+    return `${model.name} 未配置API密钥`;
+  }
+
+  try {
+    const systemPrompt = {
+      role: 'system',
+      content: `你是一个专业的AI求职助手，帮助用户解决职业规划、简历优化、面试准备、学习建议等问题。请用简洁、专业、友好的语言回答。`,
+    };
+
+    const response = await fetch(`${model.baseUrl || 'https://api.openai.com/v1'}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      },
+      body: JSON.stringify({
+        model: model.model,
+        messages: [systemPrompt, ...messages],
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+    });
+
+    const data = await response.json() as { error?: { message: string }; choices?: { message: { content: string } }[] };
+    
+    if (!response.ok) {
+      const errorMsg = data.error?.message || 'API调用失败';
+      return `错误: ${errorMsg}`;
+    }
+
+    return data.choices?.[0]?.message?.content || '未获取到响应';
+  } catch {
+    return 'AI服务暂时不可用，请稍后重试';
+  }
+}
+
+export async function* chatCompletionStream(
+  messages: { role: string; content: string }[],
+  modelConfig?: ModelConfig,
+  userApiKey?: string
+): AsyncGenerator<string> {
+  const model = modelConfig || getDefaultModel();
+  if (!model) {
+    yield '未配置任何AI模型，请联系管理员';
+    return;
+  }
+
+  const authHeaders = userApiKey ? { Authorization: `Bearer ${userApiKey}` } : getAuthHeaders(model.provider);
+  console.log(`[AI Debug] Model: ${model.name}, Provider: ${model.provider}, Auth headers exist: ${!!authHeaders}`);
+  console.log(`[AI Debug] API URL: ${model.baseUrl || 'https://api.openai.com/v1'}/chat/completions`);
+  console.log(`[AI Debug] Messages count: ${messages.length}`);
+  if (!authHeaders) {
+    yield `当前模型【${model.name}】未配置API密钥。`;
+    yield '你可以在以下平台免费注册获取：';
+    yield `${model.signUpUrl}`;
+    yield '\n配置后即可享受AI智能问答服务！';
+    return;
+  }
+
+  try {
+    const systemPrompt = {
+      role: 'system',
+      content: `你是一个专业的AI求职助手，帮助用户解决职业规划、简历优化、面试准备、学习建议等问题。请用简洁、专业、友好的语言回答。`,
+    };
+
+    const response = await fetch(`${model.baseUrl || 'https://api.openai.com/v1'}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      },
+      body: JSON.stringify({
+        model: model.model,
+        messages: [systemPrompt, ...messages],
+        temperature: 0.7,
+        max_tokens: 2000,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`[AI Error] API response not ok, status: ${response.status}`);
+      const data = await response.json().catch(() => ({})) as { error?: { message: string }; message?: string };
+      console.error(`[AI Error] API error data: ${JSON.stringify(data)}`);
+      const errorMsg = data.error?.message || data.message || 'API调用失败';
+      yield `错误: ${errorMsg}`;
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      yield '无法获取响应流';
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') {
+            return;
+          }
+
+          try {
+            const json = JSON.parse(data) as { choices?: { delta?: { content?: string } }[] };
+            const content = json.choices?.[0]?.delta?.content;
+            if (content) {
+              yield content;
+            }
+          } catch {}
+        }
+      }
+    }
+  } catch (error) {
+    console.error(`[AI Error] ${error}`);
+    yield 'AI服务暂时不可用，请稍后重试';
+  }
+}
+
+export async function analyzeCareerDiagnosis(data: {
+  skills: any[];
   interests: string[];
-  personality: { trait: string; score: number }[];
+  personality: any[];
   education: string;
   major: string;
-  experience: string;
-}
+  experience?: string;
+}): Promise<any> {
+  const prompt = `请根据以下信息为用户进行职业诊断分析：
+专业：${data.major}
+学历：${data.education}
+技能：${data.skills.map((s: any) => s.name).join(', ') || '暂无'}
+兴趣：${data.interests.join(', ') || '暂无'}
+性格特质：${data.personality.map((p: any) => p.name).join(', ') || '暂无'}
+工作经验：${data.experience || '暂无'}
 
-interface CareerMatch {
-  title: string;
-  match: number;
-  salaryRange: string;
-  prospects: string;
-  threshold: string;
-  pros: string[];
-  cons: string[];
-  tags: string[];
-}
+请返回一个JSON对象，包含以下字段：
+- summary: 综合评估总结
+- strengths: 优势列表
+- weaknesses: 劣势列表
+- suggestions: 改进建议列表
+- matches: 职业匹配列表（每个包含title, match, salaryRange, prospects, threshold, pros, cons, tags）
 
-interface DiagnosisReport {
-  summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  suggestions: string[];
-  matches: CareerMatch[];
-}
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
 
-export async function analyzeCareerDiagnosis(input: CareerDiagnosisInput): Promise<DiagnosisReport> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      summary: 'AI 服务未配置，无法进行职业诊断。请在环境变量中配置 OPENAI_API_KEY。',
-      strengths: [],
-      weaknesses: [],
-      suggestions: [],
-      matches: [],
-    };
-  }
-
-  const prompt = `你是一位资深的职业规划师。请根据以下用户信息进行职业诊断：
-
-用户信息：
-- 专业：${input.major}
-- 学历：${input.education}
-- 技能：${input.skills.map(s => `${s.name}(${s.level}/10)`).join(', ')}
-- 兴趣：${input.interests.join(', ')}
-- 性格：${input.personality.map(p => `${p.trait}(${p.score}/10)`).join(', ')}
-- 经验：${input.experience}
-
-请输出以下内容（JSON格式）：
-{
-  "summary": "对用户的整体职业建议",
-  "strengths": ["优势1", "优势2"],
-  "weaknesses": ["劣势1", "劣势2"],
-  "suggestions": ["建议1", "建议2"],
-  "matches": [
-    {
-      "title": "职业名称",
-      "match": 匹配度(0-100),
-      "salaryRange": "薪资范围",
-      "prospects": "发展前景",
-      "threshold": "入门门槛",
-      "pros": ["优点1"],
-      "cons": ["缺点1"],
-      "tags": ["标签1"]
-    }
-  ]
-}
-
-请推荐3-5个最匹配的职业方向。`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
-
-  const content = response.choices[0].message.content || '';
+  const response = await callAiApi(prompt);
+  
   try {
-    return JSON.parse(content);
+    return JSON.parse(response);
   } catch {
-    return {
-      summary: content,
-      strengths: [],
-      weaknesses: [],
-      suggestions: [],
-      matches: [],
-    };
+    throw new Error('AI返回格式错误');
   }
 }
 
-interface ResumeAnalysis {
-  score: number;
-  dimensions: { name: string; score: number; comment: string }[];
-  suggestions: string[];
-}
-
-export async function analyzeResume(resumeText: string, targetJob?: string): Promise<ResumeAnalysis> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      score: 0,
-      dimensions: [],
-      suggestions: ['AI 服务未配置，无法进行简历分析。请在环境变量中配置 OPENAI_API_KEY。'],
-    };
-  }
-
-  const prompt = `你是一位资深的HR和简历专家。请分析以下简历：
-
-${resumeText}
-
+export async function analyzeResume(content: string, targetJob?: string): Promise<any> {
+  const prompt = `请分析以下简历内容：
 目标岗位：${targetJob || '不限'}
 
-请输出以下内容（JSON格式）：
-{
-  "score": 总分(0-100),
-  "dimensions": [
-    { "name": "内容完整性", "score": 分数, "comment": "评价" },
-    { "name": "关键词匹配", "score": 分数, "comment": "评价" },
-    { "name": "量化成果", "score": 分数, "comment": "评价" },
-    { "name": "格式规范", "score": 分数, "comment": "评价" },
-    { "name": "语言表达", "score": 分数, "comment": "评价" }
-  ],
-  "suggestions": ["具体建议1", "具体建议2"]
-}
+简历内容：
+${content}
 
-请给出专业的评价和具体的改进建议。`;
+请返回一个JSON对象，包含以下字段：
+- score: 综合评分（0-100）
+- dimensions: 各维度评分列表（每个包含name, score, comment）
+- suggestions: 优化建议列表
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
 
-  const content = response.choices[0].message.content || '';
+  const response = await callAiApi(prompt);
+  
   try {
-    return JSON.parse(content);
+    return JSON.parse(response);
   } catch {
-    return {
-      score: 0,
-      dimensions: [],
-      suggestions: [],
-    };
+    throw new Error('AI返回格式错误');
   }
 }
 
-export async function optimizeResume(resumeText: string, targetJob?: string): Promise<string> {
-  const client = getOpenAI();
-  if (!client) {
-    return 'AI 服务未配置，无法进行简历优化。请在环境变量中配置 OPENAI_API_KEY。';
-  }
-
-  const prompt = `你是一位资深的简历优化专家。请优化以下简历，使其更符合目标岗位要求：
+export async function optimizeResume(content: string, targetJob?: string): Promise<string> {
+  const prompt = `请优化以下简历内容，针对${targetJob || '目标岗位'}：
 
 原始简历：
-${resumeText}
+${content}
 
-目标岗位：${targetJob || '不限'}
+请直接返回优化后的简历内容，不要包含其他解释性文字。`;
 
-请输出优化后的完整简历内容，保持原有结构但进行以下优化：
-1. 使用STAR法则描述项目经验
-2. 突出量化成果和关键数据
-3. 使用专业术语和关键词
-4. 优化语言表达，使其更简洁有力
-5. 调整格式，使其更易读
-
-直接输出优化后的简历文本即可。`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
-
-  return response.choices[0].message.content || '';
+  return await callAiApi(prompt);
 }
 
-interface InterviewQuestion {
-  question: string;
-  questionType: string;
-  expectedPoints: string[];
-}
+export async function generateInterviewQuestion(jobTitle: string, company?: string): Promise<any> {
+  const prompt = `请为${company || '某公司'}的${jobTitle}岗位生成一个面试问题。
 
-export async function generateInterviewQuestion(jobTitle: string, company: string, questionType?: string): Promise<InterviewQuestion> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      question: 'AI 服务未配置，无法生成面试问题。请在环境变量中配置 OPENAI_API_KEY。',
-      questionType: '综合',
-      expectedPoints: [],
-    };
+请返回一个JSON对象，包含以下字段：
+- question: 面试问题
+- questionType: 问题类型（如：技术基础、项目经验、算法、行为面试等）
+- expectedPoints: 回答要点列表
+
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
+
+  const response = await callAiApi(prompt);
+  
+  try {
+    return JSON.parse(response);
+  } catch {
+    throw new Error('AI返回格式错误');
   }
+}
 
-  const prompt = `你是一位资深的技术面试官。请为以下岗位生成一个面试问题：
+export async function evaluateInterviewAnswer(question: string, answer: string, jobTitle: string): Promise<any> {
+  const prompt = `请评估以下面试回答：
 
 岗位：${jobTitle}
-公司：${company}
-问题类型：${questionType || '综合'}
-
-请输出以下内容（JSON格式）：
-{
-  "question": "面试问题",
-  "questionType": "问题类型（如：算法、系统设计、行为面试、项目经验、技术基础）",
-  "expectedPoints": ["考察要点1", "考察要点2"]
-}
-
-问题应该符合该岗位的真实面试难度。`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.8,
-  });
-
-  const content = response.choices[0].message.content || '';
-  try {
-    return JSON.parse(content);
-  } catch {
-    return {
-      question: content,
-      questionType: '综合',
-      expectedPoints: [],
-    };
-  }
-}
-
-interface InterviewFeedback {
-  score: number;
-  feedback: string;
-  improvements: string[];
-  sampleAnswer: string;
-}
-
-export async function evaluateInterviewAnswer(question: string, answer: string, jobTitle: string): Promise<InterviewFeedback> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      score: 0,
-      feedback: 'AI 服务未配置，无法评价面试回答。请在环境变量中配置 OPENAI_API_KEY。',
-      improvements: [],
-      sampleAnswer: '',
-    };
-  }
-
-  const prompt = `你是一位资深的技术面试官。请评价以下面试回答：
-
 问题：${question}
 回答：${answer}
-岗位：${jobTitle}
 
-请输出以下内容（JSON格式）：
-{
-  "score": 分数(0-100),
-  "feedback": "详细评价",
-  "improvements": ["改进点1", "改进点2"],
-  "sampleAnswer": "一个优秀的参考回答"
-}
+请返回一个JSON对象，包含以下字段：
+- score: 评分（0-100）
+- feedback: 评价反馈
+- improvements: 改进建议列表
+- sampleAnswer: 参考回答
 
-请给出专业、具体的评价和建议。`;
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
-
-  const content = response.choices[0].message.content || '';
+  const response = await callAiApi(prompt);
+  
   try {
-    return JSON.parse(content);
+    return JSON.parse(response);
   } catch {
-    return {
-      score: 0,
-      feedback: content,
-      improvements: [],
-      sampleAnswer: '',
-    };
+    throw new Error('AI返回格式错误');
   }
 }
 
-interface InterviewReport {
-  summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  suggestions: string[];
-  overallScore: number;
-}
-
-export async function generateInterviewReport(questions: string[], answers: string[], feedbacks: string[], jobTitle: string): Promise<InterviewReport> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      summary: 'AI 服务未配置，无法生成面试报告。请在环境变量中配置 OPENAI_API_KEY。',
-      strengths: [],
-      weaknesses: [],
-      suggestions: [],
-      overallScore: 0,
-    };
-  }
-
-  const prompt = `你是一位资深的技术面试官。请根据以下面试记录生成完整的面试报告：
+export async function generateInterviewReport(questions: string[], answers: string[], feedbacks: string[], jobTitle: string): Promise<any> {
+  const prompt = `请根据以下面试记录生成一份完整的面试报告：
 
 岗位：${jobTitle}
 
-面试记录：
-${questions.map((q, i) => `问题${i + 1}: ${q}\n回答${i + 1}: ${answers[i]}\n反馈${i + 1}: ${feedbacks[i]}\n`).join('\n')}
+问题列表：
+${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-请输出以下内容（JSON格式）：
-{
-  "summary": "整体评价",
-  "strengths": ["优点1", "优点2"],
-  "weaknesses": ["缺点1", "缺点2"],
-  "suggestions": ["改进建议1", "改进建议2"],
-  "overallScore": 总分(0-100)
-}
+回答列表：
+${answers.map((a, i) => `${i + 1}. ${a}`).join('\n')}
 
-请给出全面、专业的评价。`;
+反馈列表：
+${feedbacks.map((f, i) => `${i + 1}. ${f}`).join('\n')}
 
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
+请返回一个JSON对象，包含以下字段：
+- summary: 面试总结
+- strengths: 优势列表
+- weaknesses: 劣势列表
+- suggestions: 改进建议列表
+- overallScore: 综合评分（0-100）
 
-  const content = response.choices[0].message.content || '';
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
+
+  const response = await callAiApi(prompt);
+  
   try {
-    return JSON.parse(content);
+    return JSON.parse(response);
   } catch {
-    return {
-      summary: content,
-      strengths: [],
-      weaknesses: [],
-      suggestions: [],
-      overallScore: 0,
-    };
+    throw new Error('AI返回格式错误');
   }
 }
 
-interface LearningPhase {
-  phase: string;
-  duration: string;
-  objectives: string[];
-  tasks: string[];
-}
+export async function generateLearningPlan(targetJob: string, timeline: string, currentSkills: string[]): Promise<any> {
+  const prompt = `请为目标岗位【${targetJob}】生成一个${timeline}的学习计划。
 
-interface LearningPlan {
-  phases: LearningPhase[];
-  milestones: string[];
-  resources: string[];
-}
+当前技能：${currentSkills.join(', ') || '暂无'}
 
-export async function generateLearningPlan(targetJob: string, timeline: string, currentSkills: string[]): Promise<LearningPlan> {
-  const client = getOpenAI();
-  if (!client) {
-    return {
-      phases: [],
-      milestones: [],
-      resources: ['AI 服务未配置，无法生成学习计划。请在环境变量中配置 OPENAI_API_KEY。'],
-    };
-  }
+请返回一个JSON对象，包含以下字段：
+- phases: 阶段列表（每个包含phase, duration, objectives, tasks）
+- milestones: 里程碑列表
+- resources: 推荐资源列表
 
-  const prompt = `你是一位资深的技术导师。请为以下目标岗位制定学习计划：
+请确保返回的是合法的JSON格式，不要包含Markdown标记。`;
 
-目标岗位：${targetJob}
-学习周期：${timeline}
-现有技能：${currentSkills.join(', ') || '无'}
-
-请输出以下内容（JSON格式）：
-{
-  "phases": [
-    {
-      "phase": "阶段名称",
-      "duration": "时长",
-      "objectives": ["目标1", "目标2"],
-      "tasks": ["任务1", "任务2"]
-    }
-  ],
-  "milestones": ["里程碑1", "里程碑2"],
-  "resources": ["推荐资源1", "推荐资源2"]
-}
-
-学习计划应该详细、可执行，包含具体的学习任务和推荐资源。`;
-
-  const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
-  });
-
-  const content = response.choices[0].message.content || '';
+  const response = await callAiApi(prompt);
+  
   try {
-    return JSON.parse(content);
+    return JSON.parse(response);
   } catch {
-    return {
-      phases: [],
-      milestones: [],
-      resources: [],
-    };
+    throw new Error('AI返回格式错误');
   }
 }

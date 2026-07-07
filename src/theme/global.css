@@ -1,33 +1,54 @@
-/* theme/global.css — 全局样式 + CSS Variables（同步自 tokens.ts） */
 :root {
-  /* 主色系 */
-  --primary: #FF6B35;
-  --primary-light: #FF9F1C;
-  --primary-dark: #E85D2F;
-  --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF9F1C 100%);
-  --gradient-energy: linear-gradient(135deg, #EF476F 0%, #FF6B35 50%, #FF9F1C 100%);
-  --gradient-sunrise: linear-gradient(135deg, #FF9F1C 0%, #FFD23F 100%);
-
-  /* 辅助色 */
-  --accent-gold: #FFD23F;
-  --accent-pink: #EF476F;
-  --success: #06D6A0;
-  --info: #118AB2;
-  --purple: #7B5EA7;
-
-  /* 中性色 */
-  --dark: #1A1A2E;
-  --text: #2D3142;
-  --text-secondary: #6B7280;
-  --text-tertiary: #9CA3AF;
-  --bg: #FFF8F0;
-  --bg-soft: #FFF3E6;
+  --primary: #8B5CF6;
+  --primary-light: #A78BFA;
+  --primary-dark: #7C3AED;
+  --primary-glow: rgba(139, 92, 246, 0.4);
+  --primary-soft: rgba(139, 92, 246, 0.1);
+  
+  --gradient-primary: linear-gradient(135deg, #6366F1 0%, #8B5CF6 40%, #EC4899 80%, #06B6D4 100%);
+  --gradient-energy: linear-gradient(135deg, #0EA5E9 0%, #8B5CF6 30%, #EC4899 60%, #F43F5E 100%);
+  --gradient-sunrise: linear-gradient(135deg, #F43F5E 0%, #EC4899 40%, #8B5CF6 70%, #06B6D4 100%);
+  --gradient-hero: linear-gradient(180deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%);
+  --gradient-card-hover: linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.95) 100%);
+  --gradient-text: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
+  --gradient-slate: linear-gradient(135deg, #64748B 0%, #475569 100%);
+  --gradient-cosmic: linear-gradient(135deg, #0F172A 0%, #1E1B4B 30%, #312E81 60%, #1E1B4B 100%);
+  
+  --accent-gold: #FBBF24;
+  --accent-pink: #F472B6;
+  --accent-cyan: #22D3EE;
+  --accent-orange: #FB923C;
+  --accent-teal: #2DD4BF;
+  --accent-emerald: #34D399;
+  --accent-violet: #A78BFA;
+  --accent-blue: #60A5FA;
+  
+  --success: #34D399;
+  --info: #22D3EE;
+  --purple: #8B5CF6;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  
+  --dark: #0F172A;
+  --dark-card: #1E293B;
+  --dark-surface: #334155;
+  --text: #0F172A;
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
+  --text-light: #CBD5E1;
+  --text-lighter: #E2E8F0;
+  --text-primary: #0F172A;
+  
+  --bg: #F8FAFC;
+  --bg-soft: #F1F5F9;
+  --bg-gradient: linear-gradient(180deg, #EEF2FF 0%, #F0F9FF 40%, #FCE7F3 70%, #F8FAFC 100%);
+  --bg-gradient-hero: linear-gradient(135deg, #EEF2FF 0%, #FCE7F3 40%, #F0F9FF 70%, #EEF2FF 100%);
   --surface: #FFFFFF;
-  --surface-alt: #FFF8F0;
-  --border: #FFE5D0;
-  --border-soft: #FFF0E0;
-
-  /* 字号 */
+  --surface-alt: #F8FAFC;
+  --border: #E2E8F0;
+  --border-soft: #F1F5F9;
+  
   --fs-xs: 11px;
   --fs-sm: 13px;
   --fs-base: 15px;
@@ -36,8 +57,9 @@
   --fs-xl: 24px;
   --fs-2xl: 30px;
   --fs-3xl: 38px;
-
-  /* 间距 */
+  --fs-4xl: 48px;
+  --fs-5xl: 64px;
+  
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -45,23 +67,43 @@
   --sp-5: 20px;
   --sp-6: 24px;
   --sp-8: 32px;
-
-  /* 圆角 */
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+  
   --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 20px;
-  --r-xl: 28px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-3xl: 32px;
+  --r-4xl: 40px;
   --r-full: 999px;
-
-  /* 阴影 */
-  --shadow-sm: 0 2px 8px rgba(255,107,53,0.06);
-  --shadow-md: 0 6px 20px rgba(255,107,53,0.10);
-  --shadow-lg: 0 12px 36px rgba(255,107,53,0.14);
-  --shadow-glow: 0 4px 24px rgba(255,107,53,0.30);
-
-  /* 字体 */
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.04), 0 2px 4px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.08), 0 8px 10px rgba(0,0,0,0.05);
+  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.2);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 12px 32px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-float: 0 25px 50px -12px rgba(0,0,0,0.15);
+  --shadow-cosmic: 0 0 60px rgba(139, 92, 246, 0.15);
+  
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
 }
 
 *, *::before, *::after {
@@ -77,29 +119,78 @@ html, body, #root {
 
 body {
   font-family: var(--font);
-  background: var(--bg);
+  background: var(--bg-gradient);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* 手机端全屏 */
-@media (max-width: 439px) {
-  body {
-    background: var(--bg);
-  }
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
 }
 
-/* 桌面端居中 + 手机框 */
-@media (min-width: 440px) {
-  body {
-    background: #EFE6DC;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 24px 12px;
-  }
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+  opacity: var(--opacity, 0.5);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: var(--opacity, 0.5); transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes shootingStar {
+  0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(1000px) translateY(1000px) rotate(-45deg); opacity: 0; }
+}
+
+.shooting-star {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1), rgba(139,92,246,1));
+  border-radius: 50%;
+  animation: shootingStar var(--duration, 4s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  top: var(--top, 20%);
+  left: var(--left, -100px);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -30%;
+  left: -30%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30%;
+  right: -30%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 70% 70%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 button {
@@ -114,7 +205,10 @@ a {
   color: inherit;
 }
 
-/* 页面切换动画 */
+input, textarea, select {
+  font-family: inherit;
+}
+
 .page-enter {
   animation: fadeSlideIn 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -128,4 +222,174 @@ a {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.5); }
+}
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+@keyframes wave {
+  0% { transform: translateX(0) translateZ(0) scaleY(1); }
+  50% { transform: translateX(-25%) translateZ(0) scaleY(0.55); }
+  100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-soft);
+  border-radius: var(--r-full);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--r-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+::selection {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--primary-dark);
+}
+
+.gradient-text {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.float-slow {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+.cosmic-glow {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.3), 0 0 60px rgba(99, 102, 241, 0.2);
 }

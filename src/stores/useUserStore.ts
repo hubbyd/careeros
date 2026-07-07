@@ -8,6 +8,7 @@ interface User {
   name: string
   avatar?: string
   createdAt?: string
+  onboarded?: boolean
 }
 
 interface AuthState {
@@ -16,6 +17,8 @@ interface AuthState {
   loading: boolean
   error: string | null
   isAuthenticated: boolean
+  onboarded: boolean
+  completedCareerTest: boolean
 
   profile: UserProfile | null
 
@@ -25,6 +28,8 @@ interface AuthState {
   checkAuth: () => Promise<void>
   clearError: () => void
   updateProfile: (updates: Partial<UserProfile>) => void
+  setOnboarded: (onboarded: boolean) => void
+  setCompletedCareerTest: (completed: boolean) => void
 }
 
 export const useUserStore = create<AuthState>((set, get) => ({
@@ -34,17 +39,22 @@ export const useUserStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   isAuthenticated: !!localStorage.getItem('jobsprint_token'),
+  onboarded: false,
+  completedCareerTest: localStorage.getItem('jobsprint_completed_career_test') === 'true',
 
   login: async (email, password) => {
     set({ loading: true, error: null })
     try {
       const data = await authApi.login(email, password)
       setToken(data.token)
+      const userInfo = await authApi.getMe()
       set({
-        user: data.user,
-        profile: mapUserToProfile(data.user),
+        user: userInfo,
+        profile: mapUserToProfile(userInfo),
         token: data.token,
         isAuthenticated: true,
+        onboarded: userInfo.onboarded || false,
+        completedCareerTest: localStorage.getItem('jobsprint_completed_career_test') === 'true',
         loading: false,
       })
     } catch (err: any) {
@@ -58,11 +68,14 @@ export const useUserStore = create<AuthState>((set, get) => ({
     try {
       const data = await authApi.register(email, password, name)
       setToken(data.token)
+      const userInfo = await authApi.getMe()
       set({
-        user: data.user,
-        profile: mapUserToProfile(data.user),
+        user: userInfo,
+        profile: mapUserToProfile(userInfo),
         token: data.token,
         isAuthenticated: true,
+        onboarded: userInfo.onboarded || false,
+        completedCareerTest: false,
         loading: false,
       })
     } catch (err: any) {
@@ -73,23 +86,32 @@ export const useUserStore = create<AuthState>((set, get) => ({
 
   logout: () => {
     removeToken()
-    set({ user: null, profile: null, token: null, isAuthenticated: false })
+    localStorage.removeItem('jobsprint_completed_career_test')
+    set({ user: null, profile: null, token: null, isAuthenticated: false, onboarded: false, completedCareerTest: false })
   },
 
   checkAuth: async () => {
     const token = get().token
     if (!token) {
-      set({ isAuthenticated: false, loading: false })
+      set({ isAuthenticated: false, loading: false, onboarded: false, completedCareerTest: false })
       return
     }
 
     try {
       set({ loading: true })
       const user = await authApi.getMe()
-      set({ user, profile: mapUserToProfile(user), isAuthenticated: true, loading: false })
+      set({ 
+        user, 
+        profile: mapUserToProfile(user), 
+        isAuthenticated: true, 
+        onboarded: user.onboarded || false,
+        completedCareerTest: localStorage.getItem('jobsprint_completed_career_test') === 'true',
+        loading: false 
+      })
     } catch {
       removeToken()
-      set({ user: null, profile: null, token: null, isAuthenticated: false, loading: false })
+      localStorage.removeItem('jobsprint_completed_career_test')
+      set({ user: null, profile: null, token: null, isAuthenticated: false, onboarded: false, completedCareerTest: false, loading: false })
     }
   },
 
@@ -99,6 +121,19 @@ export const useUserStore = create<AuthState>((set, get) => ({
     set((state) => ({
       profile: state.profile ? { ...state.profile, ...updates } : null,
     }))
+  },
+
+  setOnboarded: (onboarded: boolean) => {
+    set({ onboarded })
+  },
+
+  setCompletedCareerTest: (completed: boolean) => {
+    if (completed) {
+      localStorage.setItem('jobsprint_completed_career_test', 'true')
+    } else {
+      localStorage.removeItem('jobsprint_completed_career_test')
+    }
+    set({ completedCareerTest: completed })
   },
 }))
 

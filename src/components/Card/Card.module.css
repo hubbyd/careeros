@@ -1,14 +1,146 @@
 .card {
-  background: var(--surface);
-  border-radius: var(--r-lg);
+  background: var(--gradient-card);
+  border-radius: var(--r-xl);
   padding: var(--sp-5);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-card), 0 1px 0 rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: opacity 300ms, transform 300ms;
+}
+
+.card:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 400ms;
+}
+
+.card:hover::after {
+  opacity: 1;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(139, 92, 246, 0.15), 0 1px 0 rgba(255,255,255,0.8);
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 .card:active {
-  transform: scale(0.98);
+  transform: translateY(-2px) scale(1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+}
+
+.card-title {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.card-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.card-body {
+  margin-top: var(--sp-4);
+}
+
+.card-footer {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border-soft);
+}
+
+.card-hover-lift {
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 300ms;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: var(--shadow-xl), 0 0 50px rgba(139, 92, 246, 0.2);
+}
+
+.card-glow {
+  box-shadow: var(--shadow-card), 0 0 30px rgba(139, 92, 246, 0.1);
+  animation: cardPulse 4s ease-in-out infinite;
+}
+
+.card-glow:hover {
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(139, 92, 246, 0.25);
+  animation: none;
+}
+
+@keyframes cardPulse {
+  0%, 100% { box-shadow: var(--shadow-card), 0 0 30px rgba(139, 92, 246, 0.1); }
+  50% { box-shadow: var(--shadow-card), 0 0 40px rgba(139, 92, 246, 0.15); }
+}
+
+.card-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--gradient-card) 0%,
+    rgba(255,255,255,0.98) 50%,
+    var(--gradient-card) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.card-gradient-border {
+  position: relative;
+}
+
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-xl);
+  padding: 2px;
+  background: var(--gradient-primary);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.card-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }

@@ -2,7 +2,9 @@
 const isProduction = import.meta.env.PROD
 const API_BASE = isProduction 
   ? 'https://careeros-zvfg.onrender.com/api' 
-  : (import.meta.env.VITE_API_URL || 'http://localhost:3002/api')
+  : '/api'
+
+export const getApiBase = () => API_BASE
 
 export interface ApiError {
   error: string
@@ -61,6 +63,36 @@ export const authApi = {
     }),
 
   getMe: () => request<any>('/auth/me'),
+
+  updateMe: (data: any) =>
+    request<any>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  uploadAvatar: (image: string) =>
+    request<any>('/auth/me/avatar', {
+      method: 'POST',
+      body: JSON.stringify({ image }),
+    }),
+
+  forgotPassword: (email: string) =>
+    request<any>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, password: string) =>
+    request<any>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
+
+  updateOnboarded: (onboarded: boolean) =>
+    request<any>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify({ onboarded }),
+    }),
 }
 
 // Todos API
@@ -236,4 +268,27 @@ export const growthApi = {
 
   deleteRecord: (id: string) =>
     request<{ message: string }>(`/growth/records/${id}`, { method: 'DELETE' }),
+}
+
+// AI API
+export const aiApi = {
+  models: () => request<any[]>('/ai/models'),
+
+  chat: (messages: any[], model?: any) =>
+    request<any>('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages, model }),
+    }),
+
+  chatStream: (messages: any[], model?: any): Promise<Response> => {
+    const token = getToken()
+    return fetch(`${API_BASE}/ai/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ messages, model }),
+    })
+  },
 }

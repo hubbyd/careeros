@@ -8,14 +8,23 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  name        String
-  avatar      String?
-  role        String   @default("user")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  password            String
+  name                String
+  avatar              String?
+  title               String?
+  bio                 String?
+  location            String?
+  education           String?
+  experience          String?
+  skills              String?
+  role                String   @default("user")
+  onboarded           Boolean  @default(false)
+  resetToken          String?
+  resetTokenExpires   DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   todos              Todo[]
   applications       Application[]
