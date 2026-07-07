@@ -1,7 +1,7 @@
 // API 客户端 - 统一处理所有 HTTP 请求
 const isProduction = import.meta.env.PROD
 const API_BASE = isProduction 
-  ? 'https://careeros-backend-8u66.onrender.com/api' 
+  ? 'https://careeros-zvfg.onrender.com/api' 
   : '/api'
 
 export const getApiBase = () => API_BASE
