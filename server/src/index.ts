@@ -17,7 +17,7 @@ import aiRoutes from './routes/ai'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = parseInt(process.env.PORT || '3001', 10)
 const isProduction = process.env.NODE_ENV === 'production'
 
 // 中间件
@@ -69,10 +69,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: err.message || '服务器内部错误' })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 JobSprint 后端服务启动成功！`)
-  console.log(`📡 API 地址: http://localhost:${PORT}/api`)
-  console.log(`🩺 健康检查: http://localhost:${PORT}/api/health`)
+  console.log(`📡 API 地址: http://0.0.0.0:${PORT}/api`)
+  console.log(`🩺 健康检查: http://0.0.0.0:${PORT}/api/health`)
 })
 
 export default app
