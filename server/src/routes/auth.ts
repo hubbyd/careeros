@@ -38,7 +38,7 @@ router.post('/register', async (req: Request, res: Response) => {
     // 创建用户
     const user = await prisma.user.create({
       data: { email, password: hashedPassword, name },
-      select: { id: true, email: true, name: true, createdAt: true },
+      select: { id: true, email: true, name: true, onboarded: true, createdAt: true },
     })
 
     // 生成 JWT
@@ -59,7 +59,10 @@ router.post('/login', async (req: Request, res: Response) => {
     const { email, password } = loginSchema.parse(req.body)
 
     // 查找用户
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      select: { id: true, email: true, name: true, onboarded: true, password: true }
+    })
     if (!user) {
       return res.status(400).json({ error: '邮箱或密码错误' })
     }
@@ -74,7 +77,7 @@ router.post('/login', async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' })
 
     res.json({
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, onboarded: user.onboarded },
       token,
     })
   } catch (error: any) {

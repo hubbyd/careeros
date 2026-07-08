@@ -49,15 +49,13 @@ export const useUserStore = create<AuthState>((set, get) => ({
       const data = await authApi.login(email, password)
       console.log('[登录] 登录成功，token已获取')
       setToken(data.token)
-      console.log('[登录] 开始获取用户信息...')
-      const userInfo = await authApi.getMe()
-      console.log('[登录] 用户信息获取成功:', userInfo)
+      console.log('[登录] 用户信息:', data.user)
       set({
-        user: userInfo,
-        profile: mapUserToProfile(userInfo),
+        user: data.user,
+        profile: mapUserToProfile(data.user),
         token: data.token,
         isAuthenticated: true,
-        onboarded: userInfo.onboarded || false,
+        onboarded: data.user.onboarded || false,
         completedCareerTest: localStorage.getItem('jobsprint_completed_career_test') === 'true',
         loading: false,
       })
@@ -77,15 +75,13 @@ export const useUserStore = create<AuthState>((set, get) => ({
       const data = await authApi.register(email, password, name)
       console.log('[注册] 注册成功，token已获取')
       setToken(data.token)
-      console.log('[注册] 开始获取用户信息...')
-      const userInfo = await authApi.getMe()
-      console.log('[注册] 用户信息获取成功:', userInfo)
+      console.log('[注册] 用户信息:', data.user)
       set({
-        user: userInfo,
-        profile: mapUserToProfile(userInfo),
+        user: data.user,
+        profile: mapUserToProfile(data.user),
         token: data.token,
         isAuthenticated: true,
-        onboarded: userInfo.onboarded || false,
+        onboarded: data.user.onboarded || false,
         completedCareerTest: false,
         loading: false,
       })
