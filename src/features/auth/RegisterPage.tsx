@@ -15,7 +15,7 @@ export default function RegisterPage() {
     e.preventDefault()
     try {
       await register(email, password, name)
-      navigate('/')
+      navigate('/onboarding')
     } catch {
       // error is set in store
     }
