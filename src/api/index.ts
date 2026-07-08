@@ -23,7 +23,7 @@ export function removeToken() {
   localStorage.removeItem('jobsprint_token')
 }
 
-// 通用请求方法
+// 通用请求方法 - 增强错误处理和超时机制
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getToken()
   const headers: HeadersInit = {
@@ -32,18 +32,57 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     ...options.headers,
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  })
+  // 添加超时控制（30秒）
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000)
 
-  const data = await res.json()
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    })
 
-  if (!res.ok) {
-    throw new Error(data.error || '请求失败')
+    clearTimeout(timeoutId)
+
+    // 先检查响应状态，再尝试解析JSON
+    if (!res.ok) {
+      // 尝试解析错误响应
+      let errorMessage = `HTTP错误 ${res.status}`
+      try {
+        const errorData = await res.json()
+        errorMessage = errorData.error || errorMessage
+      } catch {
+        // 非JSON响应，使用状态码文本
+        errorMessage = res.statusText || errorMessage
+      }
+      throw new Error(errorMessage)
+    }
+
+    // 成功响应，尝试解析JSON
+    try {
+      const data = await res.json()
+      return data
+    } catch (parseError) {
+      console.error('JSON解析失败:', parseError)
+      throw new Error('服务器响应格式错误，请稍后重试')
+    }
+  } catch (error: any) {
+    clearTimeout(timeoutId)
+    
+    // 处理超时和中断错误
+    if (error.name === 'AbortError') {
+      throw new Error('请求超时，服务可能正在启动中，请稍后重试')
+    }
+    
+    // 网络错误
+    if (error.message.includes('fetch') || error.message.includes('network')) {
+      throw new Error('网络连接失败，请检查网络后重试')
+    }
+    
+    console.error(`API请求失败 [${endpoint}]:`, error)
+    throw error
   }
-
-  return data
 }
 
 // Auth API

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
 import { RocketIcon } from '../../components/Icons'
@@ -8,8 +8,24 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [loadingTime, setLoadingTime] = useState(0)
   const { register, loading, error, clearError } = useUserStore()
   const navigate = useNavigate()
+
+  // 记录加载时间，超过5秒显示提示
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>
+    if (loading) {
+      timer = setInterval(() => {
+        setLoadingTime(prev => prev + 1)
+      }, 1000)
+    } else {
+      setLoadingTime(0)
+    }
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [loading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,6 +35,16 @@ export default function RegisterPage() {
     } catch {
       // error is set in store
     }
+  }
+
+  const getLoadingText = () => {
+    if (loadingTime >= 10) {
+      return '服务启动中，请稍候...'
+    }
+    if (loadingTime >= 5) {
+      return '正在连接服务器...'
+    }
+    return '注册中...'
   }
 
   return (
@@ -68,7 +94,7 @@ export default function RegisterPage() {
             />
           </div>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? '注册中...' : '注册'}
+            {loading ? getLoadingText() : '注册'}
           </button>
         </form>
 

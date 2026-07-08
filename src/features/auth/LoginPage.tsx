@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
 import { RocketIcon } from '../../components/Icons'
@@ -7,8 +7,24 @@ import styles from './AuthPage.module.css'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loadingTime, setLoadingTime] = useState(0)
   const { login, loading, error, clearError } = useUserStore()
   const navigate = useNavigate()
+
+  // 记录加载时间，超过5秒显示提示
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>
+    if (loading) {
+      timer = setInterval(() => {
+        setLoadingTime(prev => prev + 1)
+      }, 1000)
+    } else {
+      setLoadingTime(0)
+    }
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [loading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,6 +34,16 @@ export default function LoginPage() {
     } catch {
       // error is set in store
     }
+  }
+
+  const getLoadingText = () => {
+    if (loadingTime >= 10) {
+      return '服务启动中，请稍候...'
+    }
+    if (loadingTime >= 5) {
+      return '正在连接服务器...'
+    }
+    return '登录中...'
   }
 
   return (
@@ -59,7 +85,7 @@ export default function LoginPage() {
             <a href="/forgot-password">忘记密码？</a>
           </div>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? '登录中...' : '登录'}
+            {loading ? getLoadingText() : '登录'}
           </button>
         </form>
 

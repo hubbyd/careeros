@@ -45,9 +45,13 @@ export const useUserStore = create<AuthState>((set, get) => ({
   login: async (email, password) => {
     set({ loading: true, error: null })
     try {
+      console.log('[登录] 开始登录请求...')
       const data = await authApi.login(email, password)
+      console.log('[登录] 登录成功，token已获取')
       setToken(data.token)
+      console.log('[登录] 开始获取用户信息...')
       const userInfo = await authApi.getMe()
+      console.log('[登录] 用户信息获取成功:', userInfo)
       set({
         user: userInfo,
         profile: mapUserToProfile(userInfo),
@@ -57,8 +61,11 @@ export const useUserStore = create<AuthState>((set, get) => ({
         completedCareerTest: localStorage.getItem('jobsprint_completed_career_test') === 'true',
         loading: false,
       })
+      console.log('[登录] 登录流程完成')
     } catch (err: any) {
-      set({ error: err.message || '登录失败', loading: false })
+      console.error('[登录] 登录失败:', err)
+      const errorMessage = err.message || '登录失败，请稍后重试'
+      set({ error: errorMessage, loading: false })
       throw err
     }
   },
@@ -66,9 +73,13 @@ export const useUserStore = create<AuthState>((set, get) => ({
   register: async (email, password, name) => {
     set({ loading: true, error: null })
     try {
+      console.log('[注册] 开始注册请求...')
       const data = await authApi.register(email, password, name)
+      console.log('[注册] 注册成功，token已获取')
       setToken(data.token)
+      console.log('[注册] 开始获取用户信息...')
       const userInfo = await authApi.getMe()
+      console.log('[注册] 用户信息获取成功:', userInfo)
       set({
         user: userInfo,
         profile: mapUserToProfile(userInfo),
@@ -78,8 +89,11 @@ export const useUserStore = create<AuthState>((set, get) => ({
         completedCareerTest: false,
         loading: false,
       })
+      console.log('[注册] 注册流程完成')
     } catch (err: any) {
-      set({ error: err.message || '注册失败', loading: false })
+      console.error('[注册] 注册失败:', err)
+      const errorMessage = err.message || '注册失败，请稍后重试'
+      set({ error: errorMessage, loading: false })
       throw err
     }
   },
