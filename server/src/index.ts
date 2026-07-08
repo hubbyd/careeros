@@ -27,18 +27,6 @@ const corsOrigin = isProduction
 app.use(cors({ origin: corsOrigin, credentials: true }))
 app.use(express.json())
 
-// 生产环境下提供前端静态文件
-if (isProduction) {
-  const clientDistPath = path.resolve(__dirname, '../../dist')
-  app.use(express.static(clientDistPath))
-
-  app.get('*', (req: Request, res: Response) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.resolve(clientDistPath, 'index.html'))
-    }
-  })
-}
-
 // 健康检查
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'JobSprint API is running!' })
@@ -62,6 +50,18 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err.message)
   res.status(500).json({ error: err.message || '服务器内部错误' })
 })
+
+// 生产环境下提供前端静态文件 - 必须放在所有路由之后
+if (isProduction) {
+  const clientDistPath = path.resolve(__dirname, '../../dist')
+  app.use(express.static(clientDistPath))
+
+  app.get('*', (req: Request, res: Response) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.resolve(clientDistPath, 'index.html'))
+    }
+  })
+}
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 JobSprint 后端服务启动成功！`)
