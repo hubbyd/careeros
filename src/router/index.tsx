@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Layout from '../components/Layout/Layout'
 import SimpleLayout from '../components/Layout/SimpleLayout'
 import Onboarding from '../components/Onboarding/Onboarding'
@@ -20,14 +20,12 @@ import { useUserStore } from '../stores/useUserStore'
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated)
   const onboarded = useUserStore((s) => s.onboarded)
-  const completedCareerTest = useUserStore((s) => s.completedCareerTest)
   const loading = useUserStore((s) => s.loading)
   
   if (loading) return <div className="flex items-center justify-center min-h-screen">加载中...</div>
   
   if (!isAuthenticated) return <Navigate to="/login" replace />
   if (!onboarded) return <Navigate to="/onboarding" replace />
-  if (!completedCareerTest) return <Navigate to="/career" replace />
   return <>{children}</>
 }
 
@@ -75,7 +73,7 @@ export default function AppRouter() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
-      <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       <Route path="/onboarding" element={<OnboardingRoute><Onboarding /></OnboardingRoute>} />
       <Route path="/career" element={<CareerRoute><SimpleLayout><CareerPage /></SimpleLayout></CareerRoute>} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
@@ -88,6 +86,7 @@ export default function AppRouter() {
         <Route path="learning" element={<LearningPage />} />
         <Route path="ai" element={<AiChatPage />} />
       </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

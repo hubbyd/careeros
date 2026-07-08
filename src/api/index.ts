@@ -1,6 +1,6 @@
 // API 客户端 - 统一处理所有 HTTP 请求
 const isProduction = import.meta.env.PROD
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
 
 export const getApiBase = () => API_BASE
 
