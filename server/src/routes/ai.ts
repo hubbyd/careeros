@@ -8,9 +8,18 @@ router.get('/models', authMiddleware, (_req: AuthRequest, res: Response) => {
   const models = getAvailableModels().map(model => {
     const apiKeyEnv = `${model.provider.toUpperCase()}_API_KEY`;
     const hasApiKey = !!process.env[apiKeyEnv];
+    console.log(`[AI Debug] ${model.name}: provider=${model.provider}, env=${apiKeyEnv}, hasApiKey=${hasApiKey}`);
     return { ...model, configured: hasApiKey };
   });
   res.json(models);
+});
+
+router.get('/config-debug', authMiddleware, (_req: AuthRequest, res: Response) => {
+  res.json({
+    ALIYUN_API_KEY: process.env.ALIYUN_API_KEY ? '配置了' : '未配置',
+    DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY ? '配置了' : '未配置',
+    GROQ_API_KEY: process.env.GROQ_API_KEY ? '配置了' : '未配置',
+  });
 });
 
 router.post('/chat', authMiddleware, async (req: AuthRequest, res: Response) => {
