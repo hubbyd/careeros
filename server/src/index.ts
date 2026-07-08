@@ -29,7 +29,7 @@ app.use(express.json())
 
 // 生产环境下提供前端静态文件
 if (isProduction) {
-  const clientDistPath = path.resolve(__dirname, '../dist')
+  const clientDistPath = path.resolve(__dirname, '../../dist')
   app.use(express.static(clientDistPath))
 
   app.get('*', (req: Request, res: Response) => {
