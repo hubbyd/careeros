@@ -21,14 +21,8 @@ const PORT = parseInt(process.env.PORT || '3001', 10)
 const isProduction = process.env.NODE_ENV === 'production'
 
 // 中间件
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://jobsprint.pages.dev',
-  'https://*.pages.dev',
-]
 const corsOrigin = isProduction 
-  ? (origin: string | undefined) => origin && allowedOrigins.some(o => origin.startsWith(o.replace('*', '')))
+  ? true
   : 'http://localhost:5173'
 app.use(cors({ origin: corsOrigin, credentials: true }))
 app.use(express.json())

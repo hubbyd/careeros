@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "DATABASE_URL=file:/app/data/jobsprint.db npx prisma migrate deploy && NODE_ENV=production node dist/index.js",
+    "start": "export DATABASE_URL=file:/app/data/jobsprint.db && npx prisma migrate deploy && NODE_ENV=production node dist/index.js",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
