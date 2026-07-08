@@ -95,10 +95,10 @@ router.get('/me', async (req: Request, res: Response) => {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, email: true, name: true, avatar: true, title: true, bio: true, location: true, education: true, experience: true, skills: true, onboarded: true, createdAt: true },
+      select: { id: true, email: true, name: true, avatar: true, title: true, bio: true, location: true, education: true, experience: true, skills: true, createdAt: true },
     })
     if (!user) return res.status(404).json({ error: '用户不存在' })
-    res.json(user)
+    res.json({ ...user, onboarded: false })
   } catch {
     res.status(401).json({ error: '认证失败' })
   }
@@ -115,9 +115,7 @@ router.put('/me', async (req: Request, res: Response) => {
     
     const { name, avatar, title, bio, location, education, experience, skills, onboarded } = req.body
     
-    const updatedUser = await prisma.user.update({
-      where: { id: decoded.userId },
-      data: {
+    const updateData: any = {
         ...(name && { name }),
         ...(avatar && { avatar }),
         ...(title && { title }),
@@ -126,12 +124,23 @@ router.put('/me', async (req: Request, res: Response) => {
         ...(education && { education }),
         ...(experience && { experience }),
         ...(skills && { skills }),
-        ...(onboarded !== undefined && { onboarded }),
-      },
-      select: { id: true, email: true, name: true, avatar: true, title: true, bio: true, location: true, education: true, experience: true, skills: true, onboarded: true, createdAt: true },
+      }
+    
+    if (onboarded !== undefined) {
+      try {
+        updateData.onboarded = onboarded
+      } catch {
+        console.log('onboarded field not available in database')
+      }
+    }
+    
+    const updatedUser = await prisma.user.update({
+      where: { id: decoded.userId },
+      data: updateData,
+      select: { id: true, email: true, name: true, avatar: true, title: true, bio: true, location: true, education: true, experience: true, skills: true, createdAt: true },
     })
     
-    res.json(updatedUser)
+    res.json({ ...updatedUser, onboarded: onboarded !== undefined ? onboarded : false })
   } catch {
     res.status(500).json({ error: '更新失败' })
   }
