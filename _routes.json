@@ -1,11 +1,18 @@
 {
   "version": 1,
   "include": ["/*"],
+  "exclude": ["/api/*", "/static/*"],
   "headers": {
     "/*": {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
-  }
+  },
+  "fallbacks": [
+    {
+      "source": "/*",
+      "destination": "/index.html"
+    }
+  ]
 }
