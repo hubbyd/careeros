@@ -20,6 +20,7 @@ interface Model {
   free: boolean
   freeTier: boolean
   signUpUrl: string
+  configured: boolean
 }
 
 const quickQuestions = [
@@ -48,7 +49,8 @@ export default function AiChatPage() {
     aiApi.models().then(data => {
       setModels(data)
       if (data.length > 0) {
-        setSelectedModel(data[0])
+        const configuredModel = data.find(m => m.configured)
+        setSelectedModel(configuredModel || data[0])
       }
     }).catch(() => {})
   }, [])
@@ -263,9 +265,11 @@ export default function AiChatPage() {
                     <span className={styles.modelOptionName}>
                       {model.name}
                       {model.freeTier && <span className={styles.freeBadge}>免费额度</span>}
+                      {model.configured && <span className={styles.configuredBadge}>已配置</span>}
+                      {!model.configured && <span className={styles.notConfiguredBadge}>未配置</span>}
                     </span>
                     <span className={styles.modelOptionDesc}>{model.description}</span>
-                    {model.freeTier && (
+                    {!model.configured && model.freeTier && (
                       <span className={styles.modelSignUp}>
                         <a href={model.signUpUrl} target="_blank" rel="noopener noreferrer">
                           获取API密钥 →

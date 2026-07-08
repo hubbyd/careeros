@@ -484,6 +484,30 @@
   border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
+.configuredBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(52, 211, 153, 0.1) 100%);
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--r-full);
+  margin-left: 6px;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.notConfiguredBadge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  color: var(--danger);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--r-full);
+  margin-left: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .needsKeyBadge {
   display: inline-block;
   padding: 2px 10px;

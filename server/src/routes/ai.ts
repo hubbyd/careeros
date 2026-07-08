@@ -5,7 +5,11 @@ import { getAvailableModels, chatCompletion, chatCompletionStream } from '../ser
 const router = Router();
 
 router.get('/models', authMiddleware, (_req: AuthRequest, res: Response) => {
-  const models = getAvailableModels();
+  const models = getAvailableModels().map(model => {
+    const apiKeyEnv = `${model.provider.toUpperCase()}_API_KEY`;
+    const hasApiKey = !!process.env[apiKeyEnv];
+    return { ...model, configured: hasApiKey };
+  });
   res.json(models);
 });
 
