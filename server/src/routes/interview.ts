@@ -68,11 +68,20 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
       },
     })
 
-    const question = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
-    await prisma.interviewQuestion.create({
+    let questionText: string
+    try {
+      const question = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
+      questionText = question.question
+    } catch (aiError) {
+      console.error('AI面试问题生成失败，使用备用问题:', aiError)
+      const fallbackQuestion = generateFallbackQuestion(jobTitle)
+      questionText = fallbackQuestion.question
+    }
+
+    const questionRecord = await prisma.interviewQuestion.create({
       data: {
         sessionId: session.id,
-        question: question.question,
+        question: questionText,
       },
     })
 
@@ -83,35 +92,16 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
       level: session.level,
       status: session.status,
       createdAt: session.createdAt,
+      interviewQuestions: [{
+        id: questionRecord.id,
+        sessionId: questionRecord.sessionId,
+        question: questionRecord.question,
+        createdAt: questionRecord.createdAt,
+      }],
     })
   } catch (error) {
-    console.error('AI面试问题生成失败:', error)
-
-    const session = await prisma.interviewSession.create({
-      data: {
-        userId: req.userId!,
-        jobTitle,
-        company: company || '',
-        level: level || 'entry',
-      },
-    })
-
-    const fallbackQuestion = generateFallbackQuestion(jobTitle)
-    await prisma.interviewQuestion.create({
-      data: {
-        sessionId: session.id,
-        question: fallbackQuestion.question,
-      },
-    })
-
-    res.status(201).json({
-      id: session.id,
-      jobTitle: session.jobTitle,
-      company: session.company,
-      level: session.level,
-      status: session.status,
-      createdAt: session.createdAt,
-    })
+    console.error('创建面试会话失败:', error)
+    res.status(500).json({ error: '创建面试失败，请重试' })
   }
 })
 

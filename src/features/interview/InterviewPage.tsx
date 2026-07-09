@@ -48,23 +48,32 @@ export default function InterviewPage() {
     try {
       const session = await interviewApi.createSession(jobTitle, company, level)
       setCurrentSession(session)
-      await loadSessionQuestions(session.id)
+      const loadedQuestions = await loadSessionQuestions(session.id)
       setCurrentQuestionIndex(0)
       setAnswer('')
-      setState('interviewing')
+      if (loadedQuestions.length > 0) {
+        setState('interviewing')
+      } else {
+        console.error('问题列表为空')
+        alert('创建面试失败，请重试')
+      }
     } catch (error) {
       console.error('创建面试失败:', error)
+      alert('创建面试失败，请检查网络连接')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const loadSessionQuestions = async (sessionId: string) => {
+  const loadSessionQuestions = async (sessionId: string): Promise<InterviewQuestion[]> => {
     try {
       const sessionData = await interviewApi.getSession(sessionId)
-      setQuestions(sessionData.interviewQuestions || [])
+      const questionsData = sessionData.interviewQuestions || []
+      setQuestions(questionsData)
+      return questionsData
     } catch (error) {
       console.error('获取问题失败:', error)
+      return []
     }
   }
 
@@ -76,8 +85,8 @@ export default function InterviewPage() {
     try {
       await interviewApi.submitAnswer(currentQuestion.id, answer)
       setAnswer('')
-      await loadSessionQuestions(currentSession!.id)
-      if (currentQuestionIndex < questions.length - 1) {
+      const loadedQuestions = await loadSessionQuestions(currentSession!.id)
+      if (currentQuestionIndex < loadedQuestions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1)
         setState('interviewing')
       } else {
@@ -85,6 +94,8 @@ export default function InterviewPage() {
       }
     } catch (error) {
       console.error('提交回答失败:', error)
+      alert('提交回答失败，请检查网络连接')
+      setState('interviewing')
     } finally {
       setIsLoading(false)
     }
