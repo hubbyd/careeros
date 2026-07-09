@@ -2,20 +2,22 @@ FROM node:18 AS builder
 
 WORKDIR /app
 
+ARG BUILD_TIMESTAMP
+ENV BUILD_TIMESTAMP=$BUILD_TIMESTAMP
 ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
 COPY package*.json ./
 COPY server/package*.json server/
 
-RUN npm ci --prefer-offline
+RUN npm ci
 
 COPY . .
 
-RUN rm -rf dist && npm run build
+RUN rm -rf dist && npm run build 2>&1
 
-RUN cd server && rm -rf dist && npm ci --prefer-offline
+RUN cd server && rm -rf dist && npm ci
 RUN cd server && npx prisma generate --schema prisma/schema.prisma
-RUN cd server && npm run build
+RUN cd server && npm run build 2>&1
 
 FROM node:18-slim
 
