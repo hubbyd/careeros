@@ -120,7 +120,21 @@ export function getDefaultModel(): ModelConfig | null {
     const apiKeyEnv = `${m.provider.toUpperCase()}_API_KEY`;
     return process.env[apiKeyEnv];
   });
-  return available[0] || defaultModels.find(m => m.freeTier) || null;
+
+  if (available.length === 0) {
+    return defaultModels.find(m => m.freeTier) || null;
+  }
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction) {
+    const deepseek = available.find(m => m.provider === 'deepseek');
+    if (deepseek) return deepseek;
+
+    const groq = available.find(m => m.provider === 'groq');
+    if (groq) return groq;
+  }
+
+  return available[0] || null;
 }
 
 export function getModelByProvider(provider: string): ModelConfig | undefined {
@@ -147,6 +161,9 @@ async function callAiApi(prompt: string, modelConfig?: ModelConfig, apiKey?: str
   }
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(`${model.baseUrl || 'https://api.openai.com/v1'}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -159,7 +176,10 @@ async function callAiApi(prompt: string, modelConfig?: ModelConfig, apiKey?: str
         temperature: 0.7,
         max_tokens: 2000,
       }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const data = await response.json() as { error?: { message: string }; choices?: { message: { content: string } }[] };
     
@@ -169,7 +189,10 @@ async function callAiApi(prompt: string, modelConfig?: ModelConfig, apiKey?: str
     }
 
     return data.choices?.[0]?.message?.content || '未获取到响应';
-  } catch {
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      return 'AI服务超时';
+    }
     return 'AI服务暂时不可用';
   }
 }
@@ -403,9 +426,20 @@ export async function generateInterviewQuestion(jobTitle: string, company?: stri
 
   const response = await callAiApi(prompt);
   
+  console.log('[AI Debug] generateInterviewQuestion response:', response.substring(0, 200));
+  
+  if (response.startsWith('错误:') || response.startsWith('AI服务') || response === '未配置任何AI模型') {
+    throw new Error(`AI调用失败: ${response}`);
+  }
+  
   try {
-    return JSON.parse(response);
-  } catch {
+    const result = JSON.parse(response);
+    if (!result.question) {
+      throw new Error('AI返回的问题格式不完整');
+    }
+    return result;
+  } catch (parseError) {
+    console.error('[AI Error] JSON解析失败:', parseError);
     throw new Error('AI返回格式错误');
   }
 }
