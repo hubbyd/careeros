@@ -52,7 +52,7 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
 
     const question = await generateInterviewQuestion(jobTitle, company || '')
 
-    res.status(201).json({ session, question })
+    res.status(201).json({ session, question, isFallback: false })
   } catch (error) {
     console.error('AI面试问题生成失败:', error)
 
@@ -68,7 +68,7 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
 
     const question = generateFallbackQuestion(jobTitle)
 
-    res.status(201).json({ session, question })
+    res.status(201).json({ session, question, isFallback: true })
   }
 })
 
@@ -105,7 +105,7 @@ router.post('/sessions/:id/answer', authMiddleware, async (req: AuthRequest, res
 
     const nextQuestion = await generateInterviewQuestion(session.jobTitle, session.company)
 
-    res.json({ feedback, nextQuestion })
+    res.json({ feedback, nextQuestion, isFallback: false })
   } catch (error) {
     console.error('AI面试评价失败:', error)
 
@@ -134,7 +134,7 @@ router.post('/sessions/:id/answer', authMiddleware, async (req: AuthRequest, res
 
     const nextQuestion = generateFallbackQuestion(session.jobTitle)
 
-    res.json({ feedback, nextQuestion })
+    res.json({ feedback, nextQuestion, isFallback: true })
   }
 })
 

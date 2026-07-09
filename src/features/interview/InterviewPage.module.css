@@ -205,6 +205,26 @@
   gap: var(--sp-4); 
 }
 
+.fallbackBanner {
+  padding: var(--sp-3);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.fallbackIcon {
+  font-size: var(--fs-lg);
+}
+
+.fallbackText {
+  font-size: var(--fs-sm);
+  color: #d97706;
+  font-weight: 500;
+}
+
 .interviewHeader {
   display: flex;
   justify-content: space-between;

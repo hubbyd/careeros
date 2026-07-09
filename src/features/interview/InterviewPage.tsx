@@ -36,6 +36,7 @@ export default function InterviewPage() {
   const [sessionCount, setSessionCount] = useState(0)
   const [sessions, setSessions] = useState<InterviewSession[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isFallback, setIsFallback] = useState(false)
 
   useEffect(() => {
     interviewApi.sessions().then(data => setSessions(data)).catch(() => {})
@@ -48,24 +49,11 @@ export default function InterviewPage() {
       const response = await interviewApi.createSession(jobTitle, company)
       setSessionId(response.session.id)
       setSessionCount(0)
+      setCurrentQuestion(response.question)
+      setIsFallback(response.isFallback || false)
       setState('interviewing')
-      await generateNextQuestion()
     } catch (error) {
       console.error('创建面试失败:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const generateNextQuestion = async () => {
-    setIsLoading(true)
-    try {
-      const type = questionTypes[sessionCount % questionTypes.length]
-      const response = await interviewApi.answer(sessionId, '', '', type)
-      setCurrentQuestion(response.question)
-      setState('interviewing')
-    } catch (error) {
-      console.error('生成问题失败:', error)
     } finally {
       setIsLoading(false)
     }
@@ -80,13 +68,16 @@ export default function InterviewPage() {
       const newRecord: InterviewRecord = { question: currentQuestion, answer, feedback: response.feedback }
       setRecords([...records, newRecord])
       setAnswer('')
-      setSessionCount(sessionCount + 1)
-      if (sessionCount >= 4) {
+      const newCount = sessionCount + 1
+      setSessionCount(newCount)
+      if (newCount >= 5) {
         const finishResponse = await interviewApi.finish(sessionId)
         setReport(finishResponse.report)
         setState('report')
       } else {
-        await generateNextQuestion()
+        setCurrentQuestion(response.nextQuestion)
+        setIsFallback(response.isFallback || false)
+        setState('interviewing')
       }
     } catch (error) {
       console.error('提交回答失败:', error)
@@ -181,6 +172,12 @@ export default function InterviewPage() {
           </div>
           <button className={styles.exitBtn} onClick={() => setState('setup')}>退出</button>
         </div>
+        {isFallback && (
+          <div className={styles.fallbackBanner}>
+            <span className={styles.fallbackIcon}>⚠️</span>
+            <span className={styles.fallbackText}>AI服务暂不可用，当前使用预设题库</span>
+          </div>
+        )}
         <Card className={styles.questionCard}>
           <div className={styles.questionMeta}>
             <Tag variant="purple">{currentQuestion.questionType}</Tag>
