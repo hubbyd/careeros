@@ -12,7 +12,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        value: "file:/app/data/jobsprint.db"
+        value: file:///app/data/jobsprint.db
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: GROQ_API_KEY
