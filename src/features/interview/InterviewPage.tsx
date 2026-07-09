@@ -5,7 +5,7 @@ import Button from '../../components/Button/Button'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import Tag from '../../components/Tag/Tag'
 import { AiIcon, TargetIcon, Building2Icon, MessageSquareIcon, FileIcon, BarChart3Icon, TrophyIcon, CheckCircleIcon, XCircleIcon, LightbulbIcon, SendIcon } from '../../components/Icons'
-import type { InterviewQuestion, InterviewFeedback, InterviewReport, InterviewSession } from '../../types'
+import type { InterviewQuestion, InterviewSession, InterviewReport } from '../../types'
 import styles from './InterviewPage.module.css'
 
 const jobOptions = [
@@ -14,26 +14,26 @@ const jobOptions = [
 ]
 
 const companyOptions = ['不限', '字节跳动', '腾讯', '阿里巴巴', '美团', '京东', '百度', '网易']
-const questionTypes = ['技术基础', '算法', '系统设计', '项目经验', '行为面试']
+
+const levelOptions = [
+  { value: 'entry', label: '校招/初级' },
+  { value: 'junior', label: '初级工程师' },
+  { value: 'mid', label: '中级工程师' },
+  { value: 'senior', label: '高级工程师' },
+]
 
 type InterviewState = 'setup' | 'interviewing' | 'evaluating' | 'report'
-
-interface InterviewRecord {
-  question: InterviewQuestion
-  answer: string
-  feedback: InterviewFeedback
-}
 
 export default function InterviewPage() {
   const [state, setState] = useState<InterviewState>('setup')
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
-  const [currentQuestion, setCurrentQuestion] = useState<InterviewQuestion | null>(null)
+  const [level, setLevel] = useState('entry')
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answer, setAnswer] = useState('')
-  const [records, setRecords] = useState<InterviewRecord[]>([])
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([])
   const [report, setReport] = useState<InterviewReport | null>(null)
-  const [sessionId, setSessionId] = useState('')
-  const [sessionCount, setSessionCount] = useState(0)
+  const [currentSession, setCurrentSession] = useState<InterviewSession | null>(null)
   const [sessions, setSessions] = useState<InterviewSession[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isFallback, setIsFallback] = useState(false)
@@ -46,11 +46,11 @@ export default function InterviewPage() {
     if (!jobTitle) return
     setIsLoading(true)
     try {
-      const response = await interviewApi.createSession(jobTitle, company)
-      setSessionId(response.session.id)
-      setSessionCount(0)
-      setCurrentQuestion(response.question)
-      setIsFallback(response.isFallback || false)
+      const session = await interviewApi.createSession(jobTitle, company, level)
+      setCurrentSession(session)
+      await loadSessionQuestions(session.id)
+      setCurrentQuestionIndex(0)
+      setAnswer('')
       setState('interviewing')
     } catch (error) {
       console.error('创建面试失败:', error)
@@ -59,31 +59,70 @@ export default function InterviewPage() {
     }
   }
 
+  const loadSessionQuestions = async (sessionId: string) => {
+    try {
+      const sessionData = await interviewApi.getSession(sessionId)
+      setQuestions(sessionData.interviewQuestions || [])
+    } catch (error) {
+      console.error('获取问题失败:', error)
+    }
+  }
+
   const handleSubmitAnswer = async () => {
-    if (!answer.trim() || !currentQuestion) return
+    const currentQuestion = questions[currentQuestionIndex]
+    if (!currentQuestion || !answer.trim()) return
     setIsLoading(true)
     setState('evaluating')
     try {
-      const response = await interviewApi.answer(sessionId, currentQuestion.question, answer, currentQuestion.questionType)
-      const newRecord: InterviewRecord = { question: currentQuestion, answer, feedback: response.feedback }
-      setRecords([...records, newRecord])
+      await interviewApi.submitAnswer(currentQuestion.id, answer)
       setAnswer('')
-      const newCount = sessionCount + 1
-      setSessionCount(newCount)
-      if (newCount >= 5) {
-        const finishResponse = await interviewApi.finish(sessionId)
-        setReport(finishResponse.report)
-        setState('report')
-      } else {
-        setCurrentQuestion(response.nextQuestion)
-        setIsFallback(response.isFallback || false)
+      await loadSessionQuestions(currentSession!.id)
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1)
         setState('interviewing')
+      } else {
+        setState('report')
       }
     } catch (error) {
       console.error('提交回答失败:', error)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleGenerateReport = async () => {
+    if (!currentSession) return
+    setIsLoading(true)
+    try {
+      const reportData = await interviewApi.getReport(currentSession.id)
+      setReport(reportData)
+    } catch (error) {
+      console.error('生成报告失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEndInterview = async () => {
+    if (!currentSession) return
+    setIsLoading(true)
+    try {
+      await interviewApi.endSession(currentSession.id)
+      await handleGenerateReport()
+      setState('report')
+    } catch (error) {
+      console.error('结束面试失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleViewSession = async (session: InterviewSession) => {
+    setCurrentSession(session)
+    await loadSessionQuestions(session.id)
+    setCurrentQuestionIndex(0)
+    setAnswer('')
+    setState('interviewing')
   }
 
   const handleDeleteSession = async (id: string) => {
@@ -127,6 +166,16 @@ export default function InterviewPage() {
             ))}
           </div>
         </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>📊 职位级别</label>
+          <div className={styles.formOptions}>
+            {levelOptions.map(l => (
+              <button key={l.value} className={`${styles.formOpt} ${level === l.value ? styles.formOptActive : ''}`} onClick={() => setLevel(l.value)}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className={styles.setupFeatures}>
           <div className={styles.featureBox}><span>💬</span><span>真实面试场景</span></div>
           <div className={styles.featureBox}><span>📝</span><span>实时反馈评估</span></div>
@@ -147,12 +196,15 @@ export default function InterviewPage() {
                 <div className={styles.historyHeader}>
                   <div className={styles.historyInfo}>
                     <span className={styles.historyJob}>{session.jobTitle}</span>
-                    <span className={styles.historyCompany}>{session.company || '不限'}</span>
+                    <span className={styles.historyCompany}>{session.company || '不限'} | {levelOptions.find(l => l.value === session.level)?.label || session.level}</span>
                   </div>
-                  <span className={styles.historyStatus}>{session.status}</span>
+                  <span className={styles.historyStatus}>{session.status === 'completed' ? '已完成' : session.status === 'in_progress' ? '进行中' : '待开始'}</span>
                 </div>
-                <span className={styles.historyDate}>{new Date(session.createdAt).toLocaleDateString('zh-CN')}</span>
-                <button className={styles.deleteBtn} onClick={() => handleDeleteSession(session.id)}>删除</button>
+                <span className={styles.historyDate}>{new Date(session.createdAt).toLocaleDateString('zh-CN')} | {session.questionCount || 0} 题</span>
+                <div className={styles.historyActions}>
+                  <button className={styles.viewBtn} onClick={() => handleViewSession(session)}>查看详情</button>
+                  <button className={styles.deleteBtn} onClick={() => handleDeleteSession(session.id)}>删除</button>
+                </div>
               </Card>
             ))}
           </div>
@@ -162,56 +214,96 @@ export default function InterviewPage() {
   )
 
   const renderInterviewing = () => {
+    if (!currentSession || questions.length === 0) return null
+    const currentQuestion = questions[currentQuestionIndex]
     if (!currentQuestion) return null
+
     return (
       <div className={styles.interviewing}>
         <div className={styles.interviewHeader}>
           <div className={styles.interviewProgress}>
-            <span className={styles.progressText}>第 {sessionCount + 1} / 5 题</span>
-            <ProgressBar value={(sessionCount / 5) * 100} size="sm" />
+            <span className={styles.progressText}>第 {currentQuestionIndex + 1} / {questions.length} 题</span>
+            <ProgressBar value={(currentQuestionIndex / questions.length) * 100} size="sm" />
           </div>
           <button className={styles.exitBtn} onClick={() => setState('setup')}>退出</button>
         </div>
-        {isFallback && (
-          <div className={styles.fallbackBanner}>
-            <span className={styles.fallbackIcon}>⚠️</span>
-            <span className={styles.fallbackText}>AI服务暂不可用，当前使用预设题库</span>
-          </div>
-        )}
         <Card className={styles.questionCard}>
           <div className={styles.questionMeta}>
-            <Tag variant="purple">{currentQuestion.questionType}</Tag>
-            <span className={styles.questionCount}>Q{sessionCount + 1}</span>
+            <Tag variant="purple">{currentQuestion.evaluation ? '已回答' : '待回答'}</Tag>
+            <span className={styles.questionCount}>Q{currentQuestionIndex + 1}</span>
           </div>
           <h2 className={styles.questionText}>{currentQuestion.question}</h2>
-          <div className={styles.expectedPoints}>
-            <span className={styles.expectedLabel}>考察要点：</span>
-            {currentQuestion.expectedPoints.map((point, i) => <Tag key={i} variant="info">{point}</Tag>)}
-          </div>
         </Card>
         <Card className={styles.answerCard}>
-          <textarea className={styles.answerTextarea} value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="请输入你的回答..." rows={8} />
+          <textarea 
+            className={styles.answerTextarea} 
+            value={answer} 
+            onChange={(e) => setAnswer(e.target.value)} 
+            placeholder="请输入你的回答..." 
+            rows={8}
+            disabled={!!currentQuestion.answer}
+          />
           <div className={styles.answerFooter}>
             <span className={styles.charCount}>{answer.length} 字</span>
             <span className={styles.shortcut}>Ctrl+Enter 提交</span>
           </div>
-          <Button onClick={handleSubmitAnswer} disabled={!answer.trim() || isLoading}>
-            {isLoading ? 'AI评估中...' : '📤 提交回答'}
-          </Button>
+          {!currentQuestion.answer ? (
+            <Button onClick={handleSubmitAnswer} disabled={!answer.trim() || isLoading}>
+              {isLoading ? 'AI评估中...' : '📤 提交回答'}
+            </Button>
+          ) : (
+            <div className={styles.answerSubmitted}>
+              <div className={styles.feedbackSection}>
+                <div className={styles.feedbackHeader}>
+                  <h4>💬 AI评价</h4>
+                  {currentQuestion.score !== undefined && (
+                    <span className={styles.feedbackScore} style={{ color: getScoreColor(currentQuestion.score) }}>
+                      {currentQuestion.score}分
+                    </span>
+                  )}
+                </div>
+                {currentQuestion.evaluation && (
+                  <p className={styles.feedbackText}>{currentQuestion.evaluation}</p>
+                )}
+              </div>
+              {currentQuestionIndex < questions.length - 1 ? (
+                <Button onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>下一题 →</Button>
+              ) : (
+                <Button onClick={handleEndInterview}>结束面试并生成报告</Button>
+              )}
+            </div>
+          )}
         </Card>
-        {records.length > 0 && (
+        {questions.length > 1 && (
           <div className={styles.previousSection}>
-            <h3 className={styles.previousTitle}>📝 已答题目</h3>
+            <h3 className={styles.previousTitle}>📝 题目列表</h3>
             <div className={styles.previousList}>
-              {records.map((record, i) => (
-                <Card key={i} className={styles.previousCard}>
+              {questions.map((q, i) => (
+                <Card 
+                  key={q.id} 
+                  className={`${styles.previousCard} ${i === currentQuestionIndex ? styles.previousCardActive : ''}`}
+                  onClick={() => {
+                    if (q.answer || i <= currentQuestionIndex) {
+                      setCurrentQuestionIndex(i)
+                      setAnswer(q.answer || '')
+                    }
+                  }}
+                >
                   <div className={styles.previousQuestion}>
                     <span className={styles.previousNum}>Q{i + 1}</span>
-                    <span className={styles.previousText}>{record.question.question.substring(0, 50)}...</span>
+                    <span className={styles.previousText}>{q.question.substring(0, 50)}...</span>
                   </div>
-                  <div className={styles.previousScore} style={{ color: getScoreColor(record.feedback.score) }}>
-                    {record.feedback.score}分
-                  </div>
+                  {q.score !== undefined && (
+                    <span className={styles.previousScore} style={{ color: getScoreColor(q.score) }}>
+                      {q.score}分
+                    </span>
+                  )}
+                  {q.answer && !q.score && (
+                    <span className={styles.previousPending}>评估中</span>
+                  )}
+                  {!q.answer && i > currentQuestionIndex && (
+                    <span className={styles.previousLocked}>🔒</span>
+                  )}
                 </Card>
               ))}
             </div>
@@ -222,7 +314,16 @@ export default function InterviewPage() {
   }
 
   const renderReport = () => {
-    if (!report) return null
+    if (!report) {
+      return (
+        <div className={styles.evaluating}>
+          <div className={styles.loader} />
+          <h2 className={styles.evaluatingTitle}>生成面试报告中...</h2>
+          <p className={styles.evaluatingDesc}>AI正在分析你的表现</p>
+        </div>
+      )
+    }
+
     return (
       <div className={styles.report}>
         <div className={styles.reportHeader}>
@@ -232,61 +333,38 @@ export default function InterviewPage() {
         </div>
         <Card className={styles.scoreCard}>
           <div className={styles.scoreMain}>
-            <div className={styles.scoreCircle} style={{ background: getScoreColor(report.overallScore) }}>
-              {report.overallScore}
+            <div className={styles.scoreCircle} style={{ background: getScoreColor(report.averageScore) }}>
+              {report.averageScore}
             </div>
             <div className={styles.scoreInfo}>
               <span className={styles.scoreLabel}>综合评分</span>
-              <span className={styles.scoreJob}>{jobTitle}</span>
+              <span className={styles.scoreJob}>{report.session.jobTitle}</span>
             </div>
           </div>
         </Card>
         <Card>
           <h3 className={styles.cardTitle}>📊 整体评价</h3>
-          <p className={styles.summaryText}>{report.summary}</p>
-        </Card>
-        <div className={styles.twoCols}>
-          <Card>
-            <h3 className={styles.cardTitle}>💪 面试亮点</h3>
-            <ul className={styles.list}>{report.strengths.map((s,i) => <li key={i} className={styles.listItem}>✓ {s}</li>)}</ul>
-          </Card>
-          <Card>
-            <h3 className={styles.cardTitle}>📉 需要改进</h3>
-            <ul className={styles.list}>{report.weaknesses.map((w,i) => <li key={i} className={styles.listItem}>✗ {w}</li>)}</ul>
-          </Card>
-        </div>
-        <Card>
-          <h3 className={styles.cardTitle}>💡 改进建议</h3>
-          <ul className={styles.list}>{report.suggestions.map((s,i) => <li key={i} className={styles.listItem}>📌 {s}</li>)}</ul>
+          <div className={styles.summaryText}>{report.summary}</div>
         </Card>
         <Card>
           <h3 className={styles.cardTitle}>📝 答题详情</h3>
           <div className={styles.detailList}>
-            {records.map((record, i) => (
-              <div key={i} className={styles.detailCard}>
+            {report.questions.map((q, i) => (
+              <div key={q.id} className={styles.detailCard}>
                 <div className={styles.detailHeader}>
                   <span className={styles.detailNum}>Q{i + 1}</span>
-                  <Tag variant="purple">{record.question.questionType}</Tag>
-                  <span className={styles.detailScore} style={{ color: getScoreColor(record.feedback.score) }}>
-                    {record.feedback.score}分
-                  </span>
+                  <Tag variant={q.score && q.score >= 60 ? 'success' : 'danger'}>
+                    {q.score ? `${q.score}分` : '未回答'}
+                  </Tag>
                 </div>
-                <p className={styles.detailQuestion}>{record.question.question}</p>
-                <p className={styles.detailAnswer}>{record.answer}</p>
-                <div className={styles.detailFeedback}>
-                  <h4>💬 面试官评价</h4>
-                  <p>{record.feedback.feedback}</p>
-                </div>
-                {record.feedback.improvements.length > 0 && (
-                  <div className={styles.detailImprovements}>
-                    <h4>📌 改进建议</h4>
-                    <ul>{record.feedback.improvements.map((imp,j) => <li key={j}>• {imp}</li>)}</ul>
-                  </div>
+                <p className={styles.detailQuestion}>{q.question}</p>
+                {q.answer && (
+                  <p className={styles.detailAnswer}>{q.answer}</p>
                 )}
-                {record.feedback.sampleAnswer && (
-                  <div className={styles.detailSample}>
-                    <h4>🎯 参考回答</h4>
-                    <p>{record.feedback.sampleAnswer}</p>
+                {q.evaluation && (
+                  <div className={styles.detailFeedback}>
+                    <h4>💬 面试官评价</h4>
+                    <p>{q.evaluation}</p>
                   </div>
                 )}
               </div>
@@ -301,17 +379,19 @@ export default function InterviewPage() {
     )
   }
 
+  const renderEvaluating = () => (
+    <div className={styles.evaluating}>
+      <div className={styles.loader} />
+      <h2 className={styles.evaluatingTitle}>AI正在评估你的回答...</h2>
+      <p className={styles.evaluatingDesc}>正在分析你的回答并生成反馈</p>
+    </div>
+  )
+
   return (
     <div className={styles.page}>
       {state === 'setup' && renderSetup()}
       {state === 'interviewing' && renderInterviewing()}
-      {state === 'evaluating' && (
-        <div className={styles.evaluating}>
-          <div className={styles.loader} />
-          <h2 className={styles.evaluatingTitle}>AI正在评估你的回答...</h2>
-          <p className={styles.evaluatingDesc}>正在分析你的回答并生成反馈</p>
-        </div>
-      )}
+      {state === 'evaluating' && renderEvaluating()}
       {state === 'report' && renderReport()}
     </div>
   )

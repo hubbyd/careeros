@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import prisma from '../utils/prisma'
 import { authMiddleware, AuthRequest } from '../middleware/auth'
-import { generateInterviewQuestion, evaluateInterviewAnswer, generateInterviewReport } from '../services/aiService'
+import { generateInterviewQuestion, evaluateInterviewAnswer, generateInterviewReport, getAvailableModels, getDefaultModel } from '../services/aiService'
 
 const router = Router()
 
@@ -11,8 +11,22 @@ router.get('/sessions', authMiddleware, async (req: AuthRequest, res: Response) 
       where: { userId: req.userId! },
       orderBy: { createdAt: 'desc' },
       take: 10,
+      include: {
+        interviewQuestions: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
     })
-    res.json(sessions)
+    res.json(sessions.map(s => ({
+      id: s.id,
+      userId: s.userId,
+      jobTitle: s.jobTitle,
+      company: s.company,
+      level: s.level,
+      status: s.status,
+      questionCount: s.interviewQuestions.length,
+      createdAt: s.createdAt,
+    })))
   } catch {
     res.status(500).json({ error: '获取面试记录失败' })
   }
@@ -22,6 +36,11 @@ router.get('/sessions/:id', authMiddleware, async (req: AuthRequest, res: Respon
   try {
     const session = await prisma.interviewSession.findUnique({
       where: { id: req.params.id, userId: req.userId! },
+      include: {
+        interviewQuestions: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
     })
     if (!session) {
       return res.status(404).json({ error: '面试记录不存在' })
@@ -33,7 +52,7 @@ router.get('/sessions/:id', authMiddleware, async (req: AuthRequest, res: Respon
 })
 
 router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { jobTitle, company } = req.body
+  const { jobTitle, company, level } = req.body
 
   if (!jobTitle) {
     return res.status(400).json({ error: '目标岗位必填' })
@@ -45,14 +64,26 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
         userId: req.userId!,
         jobTitle,
         company: company || '',
-        questions: JSON.stringify([]),
-        answers: JSON.stringify([]),
+        level: level || 'entry',
       },
     })
 
-    const question = await generateInterviewQuestion(jobTitle, company || '')
+    const question = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
+    await prisma.interviewQuestion.create({
+      data: {
+        sessionId: session.id,
+        question: question.question,
+      },
+    })
 
-    res.status(201).json({ session, question, isFallback: false })
+    res.status(201).json({
+      id: session.id,
+      jobTitle: session.jobTitle,
+      company: session.company,
+      level: session.level,
+      status: session.status,
+      createdAt: session.createdAt,
+    })
   } catch (error) {
     console.error('AI面试问题生成失败:', error)
 
@@ -61,113 +92,234 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
         userId: req.userId!,
         jobTitle,
         company: company || '',
-        questions: JSON.stringify([]),
-        answers: JSON.stringify([]),
+        level: level || 'entry',
       },
     })
 
-    const question = generateFallbackQuestion(jobTitle)
+    const fallbackQuestion = generateFallbackQuestion(jobTitle)
+    await prisma.interviewQuestion.create({
+      data: {
+        sessionId: session.id,
+        question: fallbackQuestion.question,
+      },
+    })
 
-    res.status(201).json({ session, question, isFallback: true })
+    res.status(201).json({
+      id: session.id,
+      jobTitle: session.jobTitle,
+      company: session.company,
+      level: session.level,
+      status: session.status,
+      createdAt: session.createdAt,
+    })
   }
 })
 
-router.post('/sessions/:id/answer', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { question, answer, questionType } = req.body
-
-  if (!question || !answer) {
-    return res.status(400).json({ error: '问题和回答都不能为空' })
-  }
-
+router.post('/sessions/:id/questions', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const session = await prisma.interviewSession.findUnique({
       where: { id: req.params.id, userId: req.userId! },
-    })
-    if (!session) {
-      return res.status(404).json({ error: '面试记录不存在' })
-    }
-
-    const feedback = await evaluateInterviewAnswer(question, answer, session.jobTitle)
-
-    const questions = JSON.parse(session.questions || '[]')
-    const answers = JSON.parse(session.answers || '[]')
-
-    questions.push({ question, questionType: questionType || '综合' })
-    answers.push({ answer, feedback })
-
-    await prisma.interviewSession.update({
-      where: { id: req.params.id },
-      data: {
-        questions: JSON.stringify(questions),
-        answers: JSON.stringify(answers),
+      include: {
+        interviewQuestions: {
+          orderBy: { createdAt: 'asc' },
+        },
       },
     })
 
-    const nextQuestion = await generateInterviewQuestion(session.jobTitle, session.company)
-
-    res.json({ feedback, nextQuestion, isFallback: false })
-  } catch (error) {
-    console.error('AI面试评价失败:', error)
-
-    const session = await prisma.interviewSession.findUnique({
-      where: { id: req.params.id, userId: req.userId! },
-    })
     if (!session) {
       return res.status(404).json({ error: '面试记录不存在' })
     }
 
-    const feedback = generateFallbackFeedback(answer)
+    const history = session.interviewQuestions.map((q, i) => {
+      const answer = q.answer ? `\n回答：${q.answer}` : ''
+      return `${i + 1}. 问题：${q.question}${answer}`
+    }).join('\n\n')
 
-    const questions = JSON.parse(session.questions || '[]')
-    const answers = JSON.parse(session.answers || '[]')
-
-    questions.push({ question, questionType: questionType || '综合' })
-    answers.push({ answer, feedback })
-
-    await prisma.interviewSession.update({
-      where: { id: req.params.id },
-      data: {
-        questions: JSON.stringify(questions),
-        answers: JSON.stringify(answers),
-      },
-    })
-
-    const nextQuestion = generateFallbackQuestion(session.jobTitle)
-
-    res.json({ feedback, nextQuestion, isFallback: true })
-  }
-})
-
-router.post('/sessions/:id/finish', authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const session = await prisma.interviewSession.findUnique({
-      where: { id: req.params.id, userId: req.userId! },
-    })
-    if (!session) {
-      return res.status(404).json({ error: '面试记录不存在' })
-    }
-
-    const questions = JSON.parse(session.questions || '[]')
-    const answers = JSON.parse(session.answers || '[]')
-
-    const questionTexts = questions.map((q: any) => q.question)
-    const answerTexts = answers.map((a: any) => a.answer)
-    const feedbackTexts = answers.map((a: any) => a.feedback?.feedback || '')
-
-    let report
+    let questionText: string
     try {
-      report = await generateInterviewReport(questionTexts, answerTexts, feedbackTexts, session.jobTitle)
+      const question = await generateInterviewQuestion(session.jobTitle, session.company, session.level)
+      questionText = question.question
     } catch {
-      report = generateFallbackReport(session.jobTitle, answers)
+      const fallback = generateFallbackQuestion(session.jobTitle)
+      questionText = fallback.question
+    }
+
+    const questionRecord = await prisma.interviewQuestion.create({
+      data: {
+        sessionId: session.id,
+        question: questionText,
+      },
+    })
+
+    res.json({
+      id: questionRecord.id,
+      sessionId: questionRecord.sessionId,
+      question: questionRecord.question,
+      createdAt: questionRecord.createdAt,
+    })
+  } catch (error) {
+    console.error('生成面试问题失败:', error)
+    res.status(500).json({ error: '生成面试问题失败' })
+  }
+})
+
+router.post('/questions/:id/answer', authMiddleware, async (req: AuthRequest, res: Response) => {
+  const { answer } = req.body
+
+  if (!answer) {
+    return res.status(400).json({ error: '回答不能为空' })
+  }
+
+  try {
+    const question = await prisma.interviewQuestion.findUnique({
+      where: { id: req.params.id },
+    })
+
+    if (!question) {
+      return res.status(404).json({ error: '问题不存在' })
+    }
+
+    const session = await prisma.interviewSession.findUnique({
+      where: { id: question.sessionId, userId: req.userId! },
+    })
+
+    if (!session) {
+      return res.status(404).json({ error: '面试记录不存在' })
+    }
+
+    let evaluationData: { score: number; evaluation: string; suggestion: string } | null = null
+    try {
+      const evaluation = await evaluateInterviewAnswer(question.question, answer, session.jobTitle)
+      evaluationData = {
+        score: evaluation.score,
+        evaluation: evaluation.feedback,
+        suggestion: evaluation.sampleAnswer,
+      }
+    } catch {
+      const fallback = generateFallbackFeedback(answer)
+      evaluationData = {
+        score: fallback.score,
+        evaluation: fallback.feedback,
+        suggestion: fallback.sampleAnswer,
+      }
+    }
+
+    await prisma.interviewQuestion.update({
+      where: { id: req.params.id },
+      data: {
+        answer,
+        evaluation: evaluationData.evaluation,
+        score: evaluationData.score,
+      },
+    })
+
+    res.json({
+      id: question.id,
+      question: question.question,
+      answer,
+      evaluation: evaluationData.evaluation,
+      score: evaluationData.score,
+    })
+  } catch (error) {
+    console.error('提交回答失败:', error)
+    res.status(500).json({ error: '提交回答失败' })
+  }
+})
+
+router.get('/sessions/:id/report', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const session = await prisma.interviewSession.findUnique({
+      where: { id: req.params.id, userId: req.userId! },
+      include: {
+        interviewQuestions: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    })
+
+    if (!session) {
+      return res.status(404).json({ error: '面试记录不存在' })
+    }
+
+    const questions = session.interviewQuestions
+    const answeredQuestions = questions.filter((q) => q.score !== null)
+
+    const totalScore = answeredQuestions.reduce((sum, q) => sum + (q.score || 0), 0)
+    const averageScore = answeredQuestions.length > 0 ? Math.round(totalScore / answeredQuestions.length) : 0
+
+    const questionHistory = questions.map((q, i) => {
+      const answer = q.answer || '未回答'
+      const score = q.score !== null ? `（得分：${q.score}）` : ''
+      return `${i + 1}. Q: ${q.question}\n   A: ${answer}${score}`
+    }).join('\n\n')
+
+    let summary: string
+    try {
+      const report = await generateInterviewReport(
+        questions.map(q => q.question),
+        questions.map(q => q.answer || ''),
+        questions.map(q => q.evaluation || ''),
+        session.jobTitle
+      )
+      summary = report.summary
+    } catch {
+      summary = generateFallbackReportText(session.jobTitle, questions)
+    }
+
+    const reportData = {
+      session: {
+        id: session.id,
+        jobTitle: session.jobTitle,
+        company: session.company,
+        level: session.level,
+      },
+      questions: questions.map((q) => ({
+        id: q.id,
+        question: q.question,
+        answer: q.answer,
+        score: q.score,
+        evaluation: q.evaluation,
+      })),
+      summary,
+      averageScore,
     }
 
     await prisma.interviewSession.update({
-      where: { id: req.params.id },
+      where: { id: session.id },
       data: {
-        status: 'completed',
-        report: JSON.stringify(report),
+        report: JSON.stringify(reportData),
       },
     })
+
+    res.json(reportData)
+  } catch (error) {
+    console.error('生成面试报告失败:', error)
+    res.status(500).json({ error: '生成面试报告失败' })
+  }
+})
+
+router.post('/sessions/:id/end', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const session = await prisma.interviewSession.findUnique({
+      where: { id: req.params.id, userId: req.userId! },
+    })
+
+    if (!session) {
+      return res.status(404).json({ error: '面试记录不存在' })
+    }
+
+    const updatedSession = await prisma.interviewSession.update({
+      where: { id: req.params.id },
+      data: { status: 'completed' },
+    })
+
+    const questions = await prisma.interviewQuestion.findMany({
+      where: { sessionId: session.id },
+    })
+
+    const answeredCount = questions.filter(q => q.score !== null).length
+    const totalScore = questions.reduce((sum, q) => sum + (q.score || 0), 0)
+    const avgScore = answeredCount > 0 ? Math.round(totalScore / answeredCount) : 0
 
     await prisma.growthRecord.create({
       data: {
@@ -176,16 +328,20 @@ router.post('/sessions/:id/finish', authMiddleware, async (req: AuthRequest, res
         content: JSON.stringify({
           type: '模拟面试',
           jobTitle: session.jobTitle,
-          score: report.overallScore,
+          score: avgScore,
           questionCount: questions.length,
         }),
       },
     })
 
-    res.json(report)
+    res.json({
+      id: updatedSession.id,
+      status: updatedSession.status,
+      message: '面试结束',
+    })
   } catch (error) {
-    console.error('生成面试报告失败:', error)
-    res.status(500).json({ error: '生成面试报告失败' })
+    console.error('结束面试失败:', error)
+    res.status(500).json({ error: '结束面试失败' })
   }
 })
 
@@ -194,9 +350,14 @@ router.delete('/sessions/:id', authMiddleware, async (req: AuthRequest, res: Res
     const session = await prisma.interviewSession.findUnique({
       where: { id: req.params.id, userId: req.userId! },
     })
+
     if (!session) {
       return res.status(404).json({ error: '面试记录不存在' })
     }
+
+    await prisma.interviewQuestion.deleteMany({
+      where: { sessionId: req.params.id },
+    })
 
     await prisma.interviewSession.delete({
       where: { id: req.params.id },
@@ -283,18 +444,25 @@ function generateFallbackFeedback(answer: string): any {
   }
 }
 
-function generateFallbackReport(jobTitle: string, answers: any[]): any {
-  const avgScore = answers.length > 0
-    ? Math.round(answers.reduce((sum, a) => sum + (a.feedback?.score || 0), 0) / answers.length)
-    : 0
+function generateFallbackReportText(jobTitle: string, questions: any[]): string {
+  const answeredCount = questions.filter(q => q.score !== null).length
+  const totalScore = questions.reduce((sum, q) => sum + (q.score || 0), 0)
+  const avgScore = answeredCount > 0 ? Math.round(totalScore / answeredCount) : 0
 
-  return {
-    summary: `你完成了针对【${jobTitle}】岗位的模拟面试，共回答了${answers.length}个问题。`,
-    strengths: ['态度积极', '回答思路比较清晰'],
-    weaknesses: ['部分问题回答不够深入', '可以增加更多实际案例'],
-    suggestions: ['建议针对薄弱环节加强学习', '多进行模拟面试练习', '注意回答的结构和逻辑'],
-    overallScore: avgScore,
-  }
+  return `你完成了针对【${jobTitle}】岗位的模拟面试，共回答了${answeredCount}个问题，平均得分${avgScore}分。
+
+整体评价：${avgScore >= 80 ? '表现优秀，具备扎实的专业知识和良好的表达能力。' : avgScore >= 60 ? '表现良好，有一定的专业基础，但仍有提升空间。' : '需要加强学习，提高专业知识水平。'}
+
+优势：${avgScore >= 60 ? '态度积极，回答思路比较清晰' : '参与度高，有学习热情'}
+
+不足：${avgScore < 80 ? '部分问题回答不够深入，可以增加更多实际案例' : '继续保持，精益求精'}
+
+改进建议：
+1. 建议针对薄弱环节加强学习
+2. 多进行模拟面试练习
+3. 注意回答的结构和逻辑
+
+继续加油！`
 }
 
 export default router

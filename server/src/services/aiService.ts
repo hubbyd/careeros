@@ -383,8 +383,16 @@ ${content}
   return await callAiApi(prompt);
 }
 
-export async function generateInterviewQuestion(jobTitle: string, company?: string): Promise<any> {
-  const prompt = `请为${company || '某公司'}的${jobTitle}岗位生成一个面试问题。
+export async function generateInterviewQuestion(jobTitle: string, company?: string, level: string = 'entry'): Promise<any> {
+  const levelDesc = {
+    'entry': '初级/校招',
+    'junior': '初级工程师',
+    'mid': '中级工程师',
+    'senior': '高级工程师',
+    'lead': '技术负责人',
+  }[level] || '初级';
+  
+  const prompt = `请为${company || '某公司'}的${jobTitle}岗位（${levelDesc}）生成一个面试问题。
 
 请返回一个JSON对象，包含以下字段：
 - question: 面试问题

@@ -138,16 +138,31 @@ model InterviewSession {
   userId          String
   jobTitle        String
   company         String
+  level           String   @default("entry")
   status          String   @default("in_progress")
-  questions       String
-  answers         String
   report          String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviewQuestions InterviewQuestion[]
 
   @@index([userId, status])
+}
+
+model InterviewQuestion {
+  id              String   @id @default(cuid())
+  sessionId       String
+  question        String
+  answer          String?
+  evaluation      String?
+  score           Int?
+  nextQuestion    String?
+  createdAt       DateTime @default(now())
+
+  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
 }
 
 model LearningPlan {

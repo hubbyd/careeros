@@ -126,9 +126,14 @@ export interface Resume {
 }
 
 export interface InterviewQuestion {
+  id: string;
+  sessionId: string;
   question: string;
-  questionType: string;
-  expectedPoints: string[];
+  answer?: string;
+  evaluation?: string;
+  score?: number;
+  nextQuestion?: string;
+  createdAt: string;
 }
 
 export interface InterviewFeedback {
@@ -139,11 +144,21 @@ export interface InterviewFeedback {
 }
 
 export interface InterviewReport {
+  session: {
+    id: string;
+    jobTitle: string;
+    company: string;
+    level: string;
+  };
+  questions: {
+    id: string;
+    question: string;
+    answer?: string;
+    score?: number;
+    evaluation?: string;
+  }[];
   summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  suggestions: string[];
-  overallScore: number;
+  averageScore: number;
 }
 
 export interface InterviewSession {
@@ -151,12 +166,13 @@ export interface InterviewSession {
   userId: string;
   jobTitle: string;
   company: string;
+  level: string;
   status: string;
-  questions: string;
-  answers: string;
+  questionCount?: number;
   report?: string;
   createdAt: string;
   updatedAt: string;
+  interviewQuestions?: InterviewQuestion[];
 }
 
 export interface LearningPhase {

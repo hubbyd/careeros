@@ -199,6 +199,28 @@
   color: var(--danger);
 }
 
+.historyActions {
+  display: flex;
+  gap: var(--sp-2);
+  align-self: flex-end;
+}
+
+.viewBtn {
+  font-size: var(--fs-xs);
+  color: var(--primary);
+  background: var(--primary-soft);
+  border: none;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  padding: var(--sp-1) var(--sp-2);
+  transition: all var(--transition-fast);
+}
+
+.viewBtn:hover {
+  background: var(--primary);
+  color: white;
+}
+
 .interviewing { 
   display: flex; 
   flex-direction: column; 
@@ -326,6 +348,12 @@
   box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
+.answerTextarea:disabled {
+  background: var(--bg-soft);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 .answerFooter {
   display: flex;
   justify-content: space-between;
@@ -393,6 +421,57 @@
   font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--primary);
+}
+
+.previousCardActive {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.previousPending {
+  font-size: var(--fs-xs);
+  color: var(--warning);
+}
+
+.previousLocked {
+  font-size: var(--fs-sm);
+}
+
+.answerSubmitted {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.feedbackSection {
+  padding: var(--sp-3);
+  background: var(--bg-soft);
+  border-radius: var(--r-lg);
+}
+
+.feedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-2);
+}
+
+.feedbackHeader h4 {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+}
+
+.feedbackScore {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+
+.feedbackText {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  line-height: 1.6;
 }
 
 .evaluating {

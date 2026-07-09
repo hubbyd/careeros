@@ -262,20 +262,29 @@ export const interviewApi = {
 
   getSession: (id: string) => request<any>(`/interview/sessions/${id}`),
 
-  createSession: (jobTitle: string, company?: string) =>
+  createSession: (jobTitle: string, company?: string, level?: string) =>
     request<any>('/interview/sessions', {
       method: 'POST',
-      body: JSON.stringify({ jobTitle, company }),
+      body: JSON.stringify({ jobTitle, company, level }),
     }),
 
-  answer: (sessionId: string, question: string, answer: string, questionType?: string) =>
-    request<any>(`/interview/sessions/${sessionId}/answer`, {
+  getSessionQuestions: (sessionId: string) => request<any>(`/interview/sessions/${sessionId}`),
+
+  createQuestion: (sessionId: string) =>
+    request<any>(`/interview/sessions/${sessionId}/questions`, {
       method: 'POST',
-      body: JSON.stringify({ question, answer, questionType }),
     }),
 
-  finish: (sessionId: string) =>
-    request<any>(`/interview/sessions/${sessionId}/finish`, {
+  submitAnswer: (questionId: string, answer: string) =>
+    request<any>(`/interview/questions/${questionId}/answer`, {
+      method: 'POST',
+      body: JSON.stringify({ answer }),
+    }),
+
+  getReport: (sessionId: string) => request<any>(`/interview/sessions/${sessionId}/report`),
+
+  endSession: (sessionId: string) =>
+    request<any>(`/interview/sessions/${sessionId}/end`, {
       method: 'POST',
     }),
 
