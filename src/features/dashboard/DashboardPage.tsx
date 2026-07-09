@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTodoStore } from '../../stores/useTodoStore'
 import { useUserStore } from '../../stores/useUserStore'
 import { useStudyStore } from '../../stores/useStudyStore'
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const { plans, streak, sessions, fetchStreak, fetchSessions, togglePlan, addPlan } = useStudyStore()
   const { applications, fetchApplications } = useApplicationStore()
   const greeting = useGreeting()
+  const navigate = useNavigate()
   const [newTodoTitle, setNewTodoTitle] = useState('')
   const [newPlanTitle, setNewPlanTitle] = useState('')
   const [newPlanSubject, setNewPlanSubject] = useState('')
@@ -308,35 +310,35 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className={styles.shortcutGrid}>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/career'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/career')}>
                 <TargetIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>职业诊断</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/learning'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/learning')}>
                 <BookIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>学习路线</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/interview'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/interview')}>
                 <MessageIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>模拟面试</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/resume'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/resume')}>
                 <FileIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>简历优化</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/study'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/study')}>
                 <TrendingUpIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>学习计划</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/ai'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/ai')}>
                 <MessageIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>AI助手</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/profile'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/profile')}>
                 <ProfileIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>个人中心</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => window.location.href = '/kanban'}>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/kanban')}>
                 <BriefcaseIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>求职看板</span>
               </button>

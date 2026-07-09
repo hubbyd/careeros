@@ -78,33 +78,45 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
     })
 
     const questions: LocalQuestion[] = []
-    let aiFailed = false
+    let aiSuccessCount = 0
+    let aiAttempted = false
 
     for (let i = 0; i < questionCount; i++) {
-      try {
-        const aiQuestion = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
-        questions.push({
-          question: aiQuestion.question,
-          questionType: aiQuestion.questionType || '技术基础',
-          expectedPoints: aiQuestion.expectedPoints || [],
-        })
-      } catch (aiError) {
-        if (!aiFailed) {
+      if (!aiAttempted) {
+        try {
+          const aiQuestion = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
+          questions.push({
+            question: aiQuestion.question,
+            questionType: aiQuestion.questionType || '技术基础',
+            expectedPoints: aiQuestion.expectedPoints || [],
+          })
+          aiSuccessCount++
+        } catch (aiError) {
           console.error('AI面试问题生成失败，切换到本地题库:', aiError)
-          aiFailed = true
+          aiAttempted = true
         }
+      }
+
+      if (aiAttempted || questions.length <= i) {
+        const localQuestions = getLocalQuestions(jobTitle, questionCount - questions.length)
+        questions.push(...localQuestions)
         break
       }
     }
 
-    if (aiFailed || questions.length < questionCount) {
-      const neededCount = questionCount - questions.length
-      const localQuestions = getLocalQuestions(jobTitle, neededCount)
-      questions.push(...localQuestions)
+    if (questions.length === 0) {
+      const fallbackQuestion = generateFallbackQuestion(jobTitle)
+      questions.push({
+        question: fallbackQuestion.question,
+        questionType: fallbackQuestion.questionType,
+        expectedPoints: fallbackQuestion.expectedPoints,
+      })
     }
 
-    const questionRecords = await prisma.interviewQuestion.createMany({
-      data: questions.map(q => ({
+    const finalQuestions = questions.slice(0, questionCount)
+
+    await prisma.interviewQuestion.createMany({
+      data: finalQuestions.map(q => ({
         sessionId: session.id,
         question: q.question,
       })),
@@ -123,6 +135,8 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
       status: session.status,
       createdAt: session.createdAt,
       interviewQuestions: createdQuestions,
+      aiGeneratedCount: aiSuccessCount,
+      localGeneratedCount: finalQuestions.length - aiSuccessCount,
     })
   } catch (error) {
     console.error('创建面试会话失败:', error)
