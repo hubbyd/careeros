@@ -57,9 +57,17 @@ export default function InterviewPage() {
         console.error('问题列表为空')
         alert('创建面试失败，请重试')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('创建面试失败:', error)
-      alert('创建面试失败，请检查网络连接')
+      const errorMsg = error?.message || '创建面试失败'
+      if (errorMsg.includes('网络') || errorMsg.includes('timeout') || errorMsg.includes('fetch')) {
+        alert('网络连接失败，请检查网络后重试')
+      } else if (errorMsg.includes('登录已过期')) {
+        alert('登录已过期，请重新登录')
+        window.location.href = '/login'
+      } else {
+        alert(errorMsg)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -92,9 +100,17 @@ export default function InterviewPage() {
       } else {
         setState('report')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('提交回答失败:', error)
-      alert('提交回答失败，请检查网络连接')
+      const errorMsg = error?.message || '提交回答失败'
+      if (errorMsg.includes('网络') || errorMsg.includes('timeout') || errorMsg.includes('fetch')) {
+        alert('网络连接失败，请检查网络后重试')
+      } else if (errorMsg.includes('登录已过期')) {
+        alert('登录已过期，请重新登录')
+        window.location.href = '/login'
+      } else {
+        alert(errorMsg)
+      }
       setState('interviewing')
     } finally {
       setIsLoading(false)

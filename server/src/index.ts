@@ -13,6 +13,8 @@ import interviewRoutes from './routes/interview'
 import learningRoutes from './routes/learning'
 import growthRoutes from './routes/growth'
 import aiRoutes from './routes/ai'
+import { loggerMiddleware } from './middleware/logger'
+import { rateLimitMiddleware } from './middleware/rateLimit'
 
 dotenv.config()
 
@@ -21,6 +23,9 @@ const PORT = parseInt(process.env.PORT || '3001', 10)
 const isProduction = process.env.NODE_ENV === 'production'
 
 // 中间件
+app.use(loggerMiddleware)
+app.use(rateLimitMiddleware)
+
 const corsOrigin = isProduction 
   ? true
   : 'http://localhost:5173'
