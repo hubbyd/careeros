@@ -7,13 +7,13 @@ ENV DATABASE_URL="file:/app/data/jobsprint.db"
 COPY package*.json ./
 COPY server/package*.json server/
 
-RUN npm ci
+RUN npm ci --prefer-offline
 
 COPY . .
 
-RUN npm run build
+RUN rm -rf dist && npm run build
 
-RUN cd server && npm ci
+RUN cd server && rm -rf dist && npm ci --prefer-offline
 RUN cd server && npx prisma generate --schema prisma/schema.prisma
 RUN cd server && npm run build
 
