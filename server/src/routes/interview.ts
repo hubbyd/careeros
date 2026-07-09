@@ -59,6 +59,14 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
   }
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId! },
+    })
+
+    if (!user) {
+      return res.status(401).json({ error: '登录已过期，请重新登录' })
+    }
+
     const session = await prisma.interviewSession.create({
       data: {
         userId: req.userId!,
