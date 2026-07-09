@@ -4,6 +4,7 @@ WORKDIR /app
 
 ARG BUILD_TIMESTAMP
 ENV BUILD_TIMESTAMP=$BUILD_TIMESTAMP
+ENV DATABASE_URL=file:///app/data/jobsprint.db
 
 COPY package*.json ./
 COPY server/package*.json server/
