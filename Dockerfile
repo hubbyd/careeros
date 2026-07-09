@@ -44,4 +44,4 @@ ENV DATABASE_URL=file:///app/data/jobsprint.db
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "rm -f /app/data/jobsprint.db && cd server && npm start"]
+CMD ["sh", "-c", "cd server && npm start"]
