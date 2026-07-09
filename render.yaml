@@ -17,3 +17,5 @@ services:
         value: 7d
       - key: ALIYUN_API_KEY
         value: "sk-ws-H.EMHXYIM.Plkd.MEQCIAGP5K7s5JveJ-t1k28Xzt4mt7NYu1c-n9ghwvdgxfsOAiBWdf_7ZH3cOru_M5qWx2iz1G8reuZb753HVBefHW744Q"
+      - key: RESET_SECRET
+        generateValue: true
