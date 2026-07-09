@@ -23,6 +23,7 @@
   transform: scaleX(0);
   transform-origin: left;
   transition: opacity 300ms, transform 300ms;
+  pointer-events: none;
 }
 
 .card:hover::before {
@@ -40,6 +41,7 @@
   background: radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 400ms;
+  pointer-events: none;
 }
 
 .card:hover::after {
