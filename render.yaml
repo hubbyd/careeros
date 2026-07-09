@@ -15,9 +15,5 @@ services:
         value: file:///app/data/jobsprint.db
       - key: JWT_EXPIRES_IN
         value: 7d
-      - key: GROQ_API_KEY
-        fromSecret: groq-api-key
-      - key: DEEPSEEK_API_KEY
-        fromSecret: deepseek-api-key
       - key: ALIYUN_API_KEY
         value: "sk-ws-H.EMHXYIM.Plkd.MEQCIAGP5K7s5JveJ-t1k28Xzt4mt7NYu1c-n9ghwvdgxfsOAiBWdf_7ZH3cOru_M5qWx2iz1G8reuZb753HVBefHW744Q"

@@ -40,8 +40,8 @@ RUN mkdir -p /app/data
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:///app/data/jobsprint.db
 
-
-
 EXPOSE 10000
 
-CMD ["sh", "-c", "cd server && npm start"]
+WORKDIR /app/server
+
+CMD ["npm", "start"]
