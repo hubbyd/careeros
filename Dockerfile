@@ -4,7 +4,6 @@ WORKDIR /app
 
 ARG BUILD_TIMESTAMP
 ENV BUILD_TIMESTAMP=$BUILD_TIMESTAMP
-ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
 COPY package*.json ./
 COPY server/package*.json server/
@@ -39,7 +38,6 @@ COPY --from=builder /app/server/node_modules/@prisma/client ./server/node_module
 RUN mkdir -p /app/data
 
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:/app/data/jobsprint.db"
 
 
 
