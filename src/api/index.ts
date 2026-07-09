@@ -262,10 +262,10 @@ export const interviewApi = {
 
   getSession: (id: string) => request<any>(`/interview/sessions/${id}`),
 
-  createSession: (jobTitle: string, company?: string, level?: string) =>
+  createSession: (jobTitle: string, company?: string, level?: string, questionCount: number = 5) =>
     request<any>('/interview/sessions', {
       method: 'POST',
-      body: JSON.stringify({ jobTitle, company, level }),
+      body: JSON.stringify({ jobTitle, company, level, questionCount }),
     }),
 
   getSessionQuestions: (sessionId: string) => request<any>(`/interview/sessions/${sessionId}`),

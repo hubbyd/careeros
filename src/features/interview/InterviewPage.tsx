@@ -22,6 +22,12 @@ const levelOptions = [
   { value: 'senior', label: '高级工程师' },
 ]
 
+const questionCountOptions = [
+  { value: 3, label: '3题 (快速)' },
+  { value: 5, label: '5题 (标准)' },
+  { value: 8, label: '8题 (深入)' },
+]
+
 type InterviewState = 'setup' | 'interviewing' | 'evaluating' | 'report'
 
 export default function InterviewPage() {
@@ -29,6 +35,7 @@ export default function InterviewPage() {
   const [jobTitle, setJobTitle] = useState('')
   const [company, setCompany] = useState('')
   const [level, setLevel] = useState('entry')
+  const [questionCount, setQuestionCount] = useState(5)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answer, setAnswer] = useState('')
   const [questions, setQuestions] = useState<InterviewQuestion[]>([])
@@ -46,7 +53,7 @@ export default function InterviewPage() {
     if (!jobTitle) return
     setIsLoading(true)
     try {
-      const session = await interviewApi.createSession(jobTitle, company, level)
+      const session = await interviewApi.createSession(jobTitle, company, level, questionCount)
       setCurrentSession(session)
       const loadedQuestions = await loadSessionQuestions(session.id)
       setCurrentQuestionIndex(0)
@@ -199,6 +206,16 @@ export default function InterviewPage() {
             {levelOptions.map(l => (
               <button key={l.value} className={`${styles.formOpt} ${level === l.value ? styles.formOptActive : ''}`} onClick={() => setLevel(l.value)}>
                 {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.formLabel}>📝 题目数量</label>
+          <div className={styles.formOptions}>
+            {questionCountOptions.map(q => (
+              <button key={q.value} className={`${styles.formOpt} ${questionCount === q.value ? styles.formOptActive : ''}`} onClick={() => setQuestionCount(q.value)}>
+                {q.label}
               </button>
             ))}
           </div>

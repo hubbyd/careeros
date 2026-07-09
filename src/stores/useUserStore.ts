@@ -96,7 +96,7 @@ export const useUserStore = create<AuthState>((set, get) => ({
 
   logout: () => {
     removeToken()
-    localStorage.removeItem('jobsprint_completed_career_test')
+    localStorage.clear()
     set({ user: null, profile: null, token: null, isAuthenticated: false, onboarded: false, completedCareerTest: false })
   },
 

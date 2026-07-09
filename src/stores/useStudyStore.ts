@@ -17,6 +17,8 @@ interface StudyStore {
   addSession: (session: Omit<StudySession, 'id'>) => void;
   togglePlan: (id: string) => void;
   addPlan: (title: string, subject: string) => void;
+  deletePlan: (id: string) => void;
+  addStudyMinutes: (minutes: number) => void;
 }
 
 export const useStudyStore = create<StudyStore>()(
@@ -86,6 +88,36 @@ export const useStudyStore = create<StudyStore>()(
             { id: uuid(), title, subject, completed: false, date: today },
           ],
         })),
+      deletePlan: (id) =>
+        set((state) => ({
+          plans: state.plans.filter((p) => p.id !== id),
+        })),
+      addStudyMinutes: async (minutes) => {
+        set((state) => {
+          const todaySession = state.sessions.find(s => s.date === today)
+          if (todaySession) {
+            return {
+              sessions: state.sessions.map(s => 
+                s.date === today ? { ...s, minutes: s.minutes + minutes } : s
+              ),
+            }
+          } else {
+            const newSession: StudySession = { 
+              id: uuid(), 
+              date: today, 
+              minutes,
+              subject: '学习',
+              completed: true
+            }
+            return {
+              sessions: [...state.sessions, newSession],
+            }
+          }
+        })
+        try {
+          await studyApi.checkin({ date: today, minutes })
+        } catch {}
+      },
     }),
     { name: 'jobsprint-study' },
   ),

@@ -4,6 +4,7 @@ import { useQuestionStore } from '../../stores/useQuestionStore'
 import { useStudyStore } from '../../stores/useStudyStore'
 import { useApplicationStore } from '../../stores/useApplicationStore'
 import { growthApi, careerApi, authApi } from '../../api'
+import { LogOutIcon, SettingsIcon, ShieldIcon, RefreshIcon } from '../../components/Icons'
 import {
   Radar,
   RadarChart,
@@ -108,6 +109,7 @@ const skillOptions = [
 export default function ProfilePage() {
   const profile = useUserStore((s) => s.profile)
   const updateProfile = useUserStore((s) => s.updateProfile)
+  const user = useUserStore((s) => s.user)
   const masteryRate = useQuestionStore((s) => s.getMasteryRate())
   const streak = useStudyStore((s) => s.streak.current)
   const applications = useApplicationStore((s) => s.applications)
@@ -134,6 +136,7 @@ export default function ProfilePage() {
   const [selectedCity, setSelectedCity] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -148,74 +151,98 @@ export default function ProfilePage() {
   }, [])
 
   useEffect(() => {
-    growthApi.records().then(data => {
-      setRecords(data)
-      
-      const monthlyData: Record<string, number> = {}
-      const now = new Date()
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-        const monthKey = `${date.getMonth() + 1}月`
-        monthlyData[monthKey] = 0
-      }
-      
-      data.forEach(record => {
-        const recordDate = new Date(record.createdAt)
-        const monthKey = `${recordDate.getMonth() + 1}月`
-        if (monthlyData[monthKey] !== undefined) {
-          monthlyData[monthKey] += 1
+    let mounted = true
+    
+    const loadData = async () => {
+      try {
+        const [recordsData, careerData] = await Promise.all([
+          growthApi.records().catch(() => []),
+          careerApi.get().catch(() => ({ matches: [], suggestions: [] }))
+        ])
+        
+        if (!mounted) return
+        
+        setRecords(recordsData || [])
+        
+        const monthlyData: Record<string, number> = {}
+        const now = new Date()
+        for (let i = 5; i >= 0; i--) {
+          const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+          const monthKey = `${date.getMonth() + 1}月`
+          monthlyData[monthKey] = 0
         }
-      })
-      
-      let baseScore = 30
-      const growthDataArray = Object.entries(monthlyData).map(([month, count]) => {
-        baseScore += count * 5 + Math.random() * 3
-        return {
-          month,
-          score: Math.min(Math.max(baseScore, 20), 95)
-        }
-      })
-      
-      setGrowthData(growthDataArray)
-    }).catch(() => {
-      const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-      const currentMonth = new Date().getMonth()
-      const pastMonths = months.slice(Math.max(0, currentMonth - 5), currentMonth + 1)
-      setGrowthData(pastMonths.map((month, index) => ({
-        month,
-        score: 30 + index * 10 + Math.random() * 5
-      })))
-    })
-
-    careerApi.get().then(data => {
-      if (data.matches) {
-        setCareerMatches(data.matches)
-      }
-      if (data.suggestions) {
-        const skillMap: Record<string, number> = {}
-        data.suggestions.forEach((s: string) => {
-          if (s.includes('JavaScript') || s.includes('JS')) skillMap['JavaScript'] = (skillMap['JavaScript'] || 0) + 20
-          if (s.includes('React') || s.includes('框架')) skillMap['React'] = (skillMap['React'] || 0) + 15
-          if (s.includes('CSS') || s.includes('样式')) skillMap['CSS'] = (skillMap['CSS'] || 0) + 15
-          if (s.includes('算法') || s.includes('数据结构')) skillMap['算法'] = (skillMap['算法'] || 0) + 10
-          if (s.includes('系统设计')) skillMap['系统设计'] = (skillMap['系统设计'] || 0) + 10
-          if (s.includes('沟通') || s.includes('表达')) skillMap['沟通表达'] = (skillMap['沟通表达'] || 0) + 15
+        
+        (recordsData || []).forEach(record => {
+          try {
+            const recordDate = new Date(record.createdAt)
+            const monthKey = `${recordDate.getMonth() + 1}月`
+            if (monthlyData[monthKey] !== undefined) {
+              monthlyData[monthKey] += 1
+            }
+          } catch {}
         })
-        setSkills(Object.entries(skillMap).map(([skill, value]) => ({
-          skill,
-          value: Math.min(value + Math.random() * 30, 95)
-        })))
+        
+        let baseScore = 30
+        const growthDataArray = Object.entries(monthlyData).map(([month, count]) => {
+          baseScore += count * 5 + Math.random() * 3
+          return {
+            month,
+            score: Math.min(Math.max(baseScore, 20), 95)
+          }
+        })
+        
+        setGrowthData(growthDataArray)
+        
+        if (careerData.matches) {
+          setCareerMatches(careerData.matches)
+        }
+        
+        if (careerData.suggestions && careerData.suggestions.length > 0) {
+          const skillMap: Record<string, number> = {}
+          careerData.suggestions.forEach((s: string) => {
+            if (s.includes('JavaScript') || s.includes('JS')) skillMap['JavaScript'] = (skillMap['JavaScript'] || 0) + 20
+            if (s.includes('React') || s.includes('框架')) skillMap['React'] = (skillMap['React'] || 0) + 15
+            if (s.includes('CSS') || s.includes('样式')) skillMap['CSS'] = (skillMap['CSS'] || 0) + 15
+            if (s.includes('算法') || s.includes('数据结构')) skillMap['算法'] = (skillMap['算法'] || 0) + 10
+            if (s.includes('系统设计')) skillMap['系统设计'] = (skillMap['系统设计'] || 0) + 10
+            if (s.includes('沟通') || s.includes('表达')) skillMap['沟通表达'] = (skillMap['沟通表达'] || 0) + 15
+          })
+          setSkills(Object.entries(skillMap).map(([skill, value]) => ({
+            skill,
+            value: Math.min(value + Math.random() * 30, 95)
+          })))
+        } else {
+          setSkills([
+            { skill: 'JavaScript', value: 75 + Math.random() * 10 },
+            { skill: 'React', value: 70 + Math.random() * 10 },
+            { skill: 'CSS', value: 65 + Math.random() * 10 },
+            { skill: '算法', value: 50 + Math.random() * 15 },
+            { skill: '系统设计', value: 40 + Math.random() * 15 },
+            { skill: '沟通表达', value: 80 + Math.random() * 10 },
+          ])
+        }
+      } catch (err) {
+        console.error('加载数据失败:', err)
+        setSkills([
+          { skill: 'JavaScript', value: 75 },
+          { skill: 'React', value: 70 },
+          { skill: 'CSS', value: 65 },
+          { skill: '算法', value: 50 },
+          { skill: '系统设计', value: 40 },
+          { skill: '沟通表达', value: 80 },
+        ])
+      } finally {
+        if (mounted) {
+          setPageLoading(false)
+        }
       }
-    }).catch(() => {
-      setSkills([
-        { skill: 'JavaScript', value: 75 + Math.random() * 10 },
-        { skill: 'React', value: 70 + Math.random() * 10 },
-        { skill: 'CSS', value: 65 + Math.random() * 10 },
-        { skill: '算法', value: 50 + Math.random() * 15 },
-        { skill: '系统设计', value: 40 + Math.random() * 15 },
-        { skill: '沟通表达', value: 80 + Math.random() * 10 },
-      ])
-    })
+    }
+    
+    loadData()
+    
+    return () => {
+      mounted = false
+    }
   }, [])
 
   const handleDeleteRecord = async (id: string) => {
@@ -337,6 +364,13 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
+  const handleLogout = () => {
+    if (confirm('确定要退出登录吗？')) {
+      useUserStore.getState().logout()
+      window.location.href = '/login'
+    }
+  }
+
   const parseContent = (content: string) => {
     try {
       const parsed = JSON.parse(content)
@@ -362,7 +396,39 @@ export default function ProfilePage() {
   const offerCount = applications.filter(a => a.status === 'offer').length
   const appliedCount = applications.length
 
-  if (!profile) return null
+  if (pageLoading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <span>加载中...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile && !user) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.emptyState}>
+          <span>🔒</span>
+          <span>请先登录查看个人资料</span>
+          <button className={styles.loginBtn} onClick={() => window.location.href = '/login'}>立即登录</button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.emptyState}>
+          <span>👤</span>
+          <span>个人资料加载中...</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.page}>
@@ -556,6 +622,12 @@ export default function ProfilePage() {
             )}
             <div className={styles.joinDate}>加入于 {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('zh-CN') : ''}</div>
             <button className={styles.editBtn} onClick={handleEdit}>编辑资料</button>
+            <div className={styles.accountActions}>
+              <button className={styles.accountActionBtn} onClick={handleLogout}>
+                <LogOutIcon size={16} />
+                <span>退出登录</span>
+              </button>
+            </div>
           </>
         )}
       </section>

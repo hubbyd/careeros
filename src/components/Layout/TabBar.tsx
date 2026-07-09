@@ -1,13 +1,14 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
 import { useStudyStore } from '../../stores/useStudyStore'
-import { HomeIcon, KanbanIcon, AiIcon, InterviewIcon, ProfileIcon } from '../../components/Icons'
+import { HomeIcon, KanbanIcon, AiIcon, InterviewIcon, ProfileIcon, LearningIcon } from '../../components/Icons'
 import styles from './TabBar.module.css'
 
 type TabIcon = React.ReactNode
 
 const tabs: { path: string; label: string; icon: TabIcon }[] = [
   { path: '/', label: '首页', icon: <HomeIcon size={24} /> },
+  { path: '/study', label: '学习', icon: <LearningIcon size={24} /> },
   { path: '/kanban', label: '求职', icon: <KanbanIcon size={24} /> },
   { path: '/ai', label: 'AI助手', icon: <AiIcon size={24} /> },
   { path: '/interview', label: '面试', icon: <InterviewIcon size={24} /> },

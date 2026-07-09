@@ -76,42 +76,50 @@ router.get('/streak', authMiddleware, async (req: AuthRequest, res: Response) =>
       select: { date: true },
     })
 
-    // 计算连续打卡天数
-    let streak = 0
     const today = new Date().toISOString().split('T')[0]
-    let checkDate = new Date(today)
+    let currentStreak = 0
+    let longestStreak = 0
+    let lastCheckIn = ''
+    const calendar: Record<string, boolean> = {}
 
-    for (const log of logs) {
-      const logDate = new Date(log.date)
-      const diffDays = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24))
+    if (logs.length > 0) {
+      lastCheckIn = logs[0].date
 
-      if (diffDays <= 1) {
-        streak++
-        checkDate = logDate
-      } else {
-        break
+      let tempStreak = 0
+      let checkDate = new Date(today)
+
+      for (const log of logs) {
+        calendar[log.date] = true
+        const logDate = new Date(log.date)
+        const diffDays = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24))
+
+        if (diffDays <= 1) {
+          tempStreak++
+          checkDate = logDate
+        } else {
+          longestStreak = Math.max(longestStreak, tempStreak)
+          tempStreak = 1
+          checkDate = logDate
+        }
+      }
+      longestStreak = Math.max(longestStreak, tempStreak)
+      currentStreak = tempStreak
+
+      const todayLog = logs.find(l => l.date === today)
+      if (!todayLog) {
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+        if (!logs.find(l => l.date === yesterday)) {
+          currentStreak = 0
+        }
       }
     }
 
-    // 总学习时长
-    const totalMinutes = logs.reduce((sum, log) => {
-      // Need to fetch all logs with minutes
-      return sum
-    }, 0)
-
-    const allLogs = await prisma.studyLog.findMany({
-      where: { userId: req.userId! },
-      select: { minutes: true, pomodoroCount: true },
+    res.json({
+      current: currentStreak,
+      longest: longestStreak,
+      lastCheckIn,
+      calendar,
     })
-
-    const stats = {
-      streak,
-      totalMinutes: allLogs.reduce((s, l) => s + l.minutes, 0),
-      totalPomodoros: allLogs.reduce((s, l) => s + l.pomodoroCount, 0),
-      totalDays: logs.length,
-    }
-
-    res.json(stats)
   } catch {
     res.status(500).json({ error: '获取打卡数据失败' })
   }

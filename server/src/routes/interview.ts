@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express'
 import prisma from '../utils/prisma'
 import { authMiddleware, AuthRequest } from '../middleware/auth'
-import { generateInterviewQuestion, evaluateInterviewAnswer, generateInterviewReport, getAvailableModels, getDefaultModel } from '../services/aiService'
+import { generateInterviewQuestion, evaluateInterviewAnswer, generateInterviewReport } from '../services/aiService'
+import { getLocalQuestions, LocalQuestion } from '../data/interviewQuestions'
 
 const router = Router()
 
@@ -52,7 +53,7 @@ router.get('/sessions/:id', authMiddleware, async (req: AuthRequest, res: Respon
 })
 
 router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { jobTitle, company, level } = req.body
+  const { jobTitle, company, level, questionCount = 5 } = req.body
 
   if (!jobTitle) {
     return res.status(400).json({ error: '目标岗位必填' })
@@ -76,21 +77,42 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
       },
     })
 
-    let questionText: string
-    try {
-      const question = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
-      questionText = question.question
-    } catch (aiError) {
-      console.error('AI面试问题生成失败，使用备用问题:', aiError)
-      const fallbackQuestion = generateFallbackQuestion(jobTitle)
-      questionText = fallbackQuestion.question
+    const questions: LocalQuestion[] = []
+    let aiFailed = false
+
+    for (let i = 0; i < questionCount; i++) {
+      try {
+        const aiQuestion = await generateInterviewQuestion(jobTitle, company || '', level || 'entry')
+        questions.push({
+          question: aiQuestion.question,
+          questionType: aiQuestion.questionType || '技术基础',
+          expectedPoints: aiQuestion.expectedPoints || [],
+        })
+      } catch (aiError) {
+        if (!aiFailed) {
+          console.error('AI面试问题生成失败，切换到本地题库:', aiError)
+          aiFailed = true
+        }
+        break
+      }
     }
 
-    const questionRecord = await prisma.interviewQuestion.create({
-      data: {
+    if (aiFailed || questions.length < questionCount) {
+      const neededCount = questionCount - questions.length
+      const localQuestions = getLocalQuestions(jobTitle, neededCount)
+      questions.push(...localQuestions)
+    }
+
+    const questionRecords = await prisma.interviewQuestion.createMany({
+      data: questions.map(q => ({
         sessionId: session.id,
-        question: questionText,
-      },
+        question: q.question,
+      })),
+    })
+
+    const createdQuestions = await prisma.interviewQuestion.findMany({
+      where: { sessionId: session.id },
+      orderBy: { createdAt: 'asc' },
     })
 
     res.status(201).json({
@@ -100,12 +122,7 @@ router.post('/sessions', authMiddleware, async (req: AuthRequest, res: Response)
       level: session.level,
       status: session.status,
       createdAt: session.createdAt,
-      interviewQuestions: [{
-        id: questionRecord.id,
-        sessionId: questionRecord.sessionId,
-        question: questionRecord.question,
-        createdAt: questionRecord.createdAt,
-      }],
+      interviewQuestions: createdQuestions,
     })
   } catch (error) {
     console.error('创建面试会话失败:', error)
@@ -128,18 +145,13 @@ router.post('/sessions/:id/questions', authMiddleware, async (req: AuthRequest, 
       return res.status(404).json({ error: '面试记录不存在' })
     }
 
-    const history = session.interviewQuestions.map((q, i) => {
-      const answer = q.answer ? `\n回答：${q.answer}` : ''
-      return `${i + 1}. 问题：${q.question}${answer}`
-    }).join('\n\n')
-
     let questionText: string
     try {
       const question = await generateInterviewQuestion(session.jobTitle, session.company, session.level)
       questionText = question.question
     } catch {
-      const fallback = generateFallbackQuestion(session.jobTitle)
-      questionText = fallback.question
+      const localQuestions = getLocalQuestions(session.jobTitle, 1)
+      questionText = localQuestions[0]?.question || generateFallbackQuestion(session.jobTitle).question
     }
 
     const questionRecord = await prisma.interviewQuestion.create({

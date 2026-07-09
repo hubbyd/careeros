@@ -374,6 +374,160 @@
   color: var(--danger);
 }
 
+.addTodoForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.addTodoInput {
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 200ms;
+}
+
+.addTodoInput:focus {
+  border-color: var(--primary);
+}
+
+.addTodoActions {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+}
+
+.addPlanForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background: rgba(14, 165, 233, 0.05);
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.addPlanInput {
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color 200ms;
+}
+
+.addPlanInput:focus {
+  border-color: var(--info);
+}
+
+.addPlanActions {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+  margin-top: var(--sp-1);
+}
+
+.todoDelete {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 200ms;
+}
+
+.todoItem:hover .todoDelete {
+  opacity: 1;
+}
+
+.todoDelete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.todoMore {
+  padding: var(--sp-2) var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-tertiary);
+}
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  color: var(--primary);
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 200ms;
+}
+
+.viewAll:hover {
+  opacity: 0.8;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-3);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: rgba(241, 245, 249, 0.6);
+  border-radius: var(--r-lg);
+  transition: all 200ms;
+}
+
+.statItem:hover {
+  background: rgba(241, 245, 249, 0.9);
+  transform: translateY(-2px);
+}
+
+.statIcon {
+  font-size: var(--fs-xl);
+}
+
+.statData {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNum {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.statLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
 .shortcutGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
