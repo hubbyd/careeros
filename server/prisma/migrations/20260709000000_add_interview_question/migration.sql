@@ -14,9 +14,9 @@ CREATE TABLE "InterviewQuestion" (
 -- Add index on sessionId
 CREATE INDEX "InterviewQuestion_sessionId_idx" ON "InterviewQuestion"("sessionId");
 
--- Add level field to InterviewSession if not exists
-ALTER TABLE "InterviewSession" ADD COLUMN IF NOT EXISTS "level" TEXT NOT NULL DEFAULT 'entry';
+-- Add level field to InterviewSession
+ALTER TABLE "InterviewSession" ADD COLUMN "level" TEXT NOT NULL DEFAULT 'entry';
 
--- Remove old fields if they exist
-ALTER TABLE "InterviewSession" DROP COLUMN IF EXISTS "questions";
-ALTER TABLE "InterviewSession" DROP COLUMN IF EXISTS "answers";
+-- Remove old fields
+ALTER TABLE "InterviewSession" DROP COLUMN "questions";
+ALTER TABLE "InterviewSession" DROP COLUMN "answers";
