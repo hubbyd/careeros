@@ -50,7 +50,7 @@ export default function DashboardPage() {
 
   const handleAddPlan = () => {
     if (newPlanTitle.trim()) {
-      addPlan(newPlanTitle.trim(), newPlanSubject || '未分类')
+      addPlan({ title: newPlanTitle.trim(), subject: newPlanSubject || '未分类' })
       setNewPlanTitle('')
       setNewPlanSubject('')
       setShowAddPlan(false)

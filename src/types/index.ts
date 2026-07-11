@@ -29,6 +29,7 @@ export interface StudySession {
   minutes: number;
   subject: string;
   completed: boolean;
+  pomodoroCount?: number;
 }
 
 export interface StreakData {
@@ -38,12 +39,22 @@ export interface StreakData {
   calendar: Record<string, boolean>;
 }
 
+export interface PlanSubtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
 export interface StudyPlan {
   id: string;
   title: string;
   subject: string;
   completed: boolean;
   date: string;
+  priority?: 'high' | 'medium' | 'low';
+  dueDate?: string;
+  recurring?: boolean;
+  subtasks?: PlanSubtask[];
 }
 
 export type QuestionCategory = 'tech' | 'behavior' | 'project' | 'algorithm' | 'system';

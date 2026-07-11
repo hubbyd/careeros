@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuid } from 'uuid'
 import { studyApi } from '../api'
-import type { StreakData, StudyPlan, StudySession } from '../types'
+import type { StreakData, StudyPlan, StudySession, PlanSubtask } from '../types'
 
 const today = new Date().toISOString().slice(0, 10)
 
@@ -16,9 +16,11 @@ interface StudyStore {
   checkIn: () => void;
   addSession: (session: Omit<StudySession, 'id'>) => void;
   togglePlan: (id: string) => void;
-  addPlan: (title: string, subject: string) => void;
+  addPlan: (plan: Omit<StudyPlan, 'id' | 'date' | 'completed'>) => void;
   deletePlan: (id: string) => void;
   addStudyMinutes: (minutes: number) => void;
+  setPlans: (plans: StudyPlan[]) => void;
+  addPomodoro: (count: number) => void;
 }
 
 export const useStudyStore = create<StudyStore>()(
@@ -81,17 +83,48 @@ export const useStudyStore = create<StudyStore>()(
         set((state) => ({
           plans: state.plans.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p)),
         })),
-      addPlan: (title, subject) =>
+      addPlan: (planData) =>
         set((state) => ({
           plans: [
             ...state.plans,
-            { id: uuid(), title, subject, completed: false, date: today },
+            { 
+              id: uuid(), 
+              ...planData,
+              completed: false, 
+              date: today,
+              subtasks: planData.subtasks || []
+            },
           ],
         })),
       deletePlan: (id) =>
         set((state) => ({
           plans: state.plans.filter((p) => p.id !== id),
         })),
+      setPlans: (plans) => set({ plans }),
+      addPomodoro: (count) => {
+        set((state) => {
+          const todaySession = state.sessions.find(s => s.date === today)
+          if (todaySession) {
+            return {
+              sessions: state.sessions.map(s => 
+                s.date === today ? { ...s, pomodoroCount: (s.pomodoroCount || 0) + count } : s
+              ),
+            }
+          } else {
+            const newSession: StudySession = { 
+              id: uuid(), 
+              date: today, 
+              minutes: 0,
+              subject: '学习',
+              completed: true,
+              pomodoroCount: count
+            }
+            return {
+              sessions: [...state.sessions, newSession],
+            }
+          }
+        })
+      },
       addStudyMinutes: async (minutes) => {
         set((state) => {
           const todaySession = state.sessions.find(s => s.date === today)
@@ -107,7 +140,8 @@ export const useStudyStore = create<StudyStore>()(
               date: today, 
               minutes,
               subject: '学习',
-              completed: true
+              completed: true,
+              pomodoroCount: 0
             }
             return {
               sessions: [...state.sessions, newSession],
