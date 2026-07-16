@@ -1,17 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
-import { RocketIcon } from '../../components/Icons'
+import { RocketIcon, EyeIcon, EyeOffIcon } from '../../components/Icons'
 import styles from './AuthPage.module.css'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [loadingTime, setLoadingTime] = useState(0)
   const { login, loading, error, clearError } = useUserStore()
   const navigate = useNavigate()
 
-  // 记录加载时间，超过5秒显示提示
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('jobsprint_email')
+    const savedRemember = localStorage.getItem('jobsprint_remember') === 'true'
+    if (savedEmail && savedRemember) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
+
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>
     if (loading) {
@@ -30,6 +40,13 @@ export default function LoginPage() {
     e.preventDefault()
     try {
       await login(email, password)
+      if (rememberMe) {
+        localStorage.setItem('jobsprint_email', email)
+        localStorage.setItem('jobsprint_remember', 'true')
+      } else {
+        localStorage.removeItem('jobsprint_email')
+        localStorage.removeItem('jobsprint_remember')
+      }
       navigate('/')
     } catch {
       // error is set in store
@@ -73,21 +90,55 @@ export default function LoginPage() {
           </div>
           <div className={styles.field}>
             <label>密码</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="请输入密码"
-              required
-            />
+            <div className={styles.passwordField}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="请输入密码"
+                required
+              />
+              <button
+                type="button"
+                className={styles.passwordToggle}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+              </button>
+            </div>
           </div>
-          <div className={styles.forgotPassword}>
-            <a href="/forgot-password">忘记密码？</a>
+          <div className={styles.loginOptions}>
+            <label className={styles.rememberMe}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span>记住我</span>
+            </label>
+            <a href="/forgot-password" className={styles.forgotPasswordLink}>忘记密码？</a>
           </div>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? getLoadingText() : '登录'}
           </button>
         </form>
+
+        <div className={styles.divider}>
+          <div className={styles.dividerLine}></div>
+          <span className={styles.dividerText}>或</span>
+          <div className={styles.dividerLine}></div>
+        </div>
+
+        <div className={styles.socialButtons}>
+          <button className={styles.socialBtn} onClick={() => alert('微信登录功能开发中')}>
+            <span className={styles.socialIcon}>💬</span>
+            <span>微信登录</span>
+          </button>
+          <button className={styles.socialBtn} onClick={() => alert('GitHub登录功能开发中')}>
+            <span className={styles.socialIcon}>🐙</span>
+            <span>GitHub登录</span>
+          </button>
+        </div>
 
         <p className={styles.switch}>
           还没有账号？<a href="/register">立即注册</a>

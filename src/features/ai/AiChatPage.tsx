@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { aiApi } from '../../api'
 import Button from '../../components/Button/Button'
-import { AiIcon, TargetIcon, FileIcon, MessageIcon, BookIcon, SendIcon, SettingsIcon, ChevronDownIcon } from '../../components/Icons'
+import { AiIcon, TargetIcon, FileIcon, MessageIcon, BookIcon, SendIcon, SettingsIcon, ChevronDownIcon, SearchIcon, CheckIcon, SparklesIcon, ZapIcon } from '../../components/Icons'
 import styles from './AiChatPage.module.css'
 
 interface Message {
@@ -21,6 +21,24 @@ interface Model {
   freeTier: boolean
   signUpUrl: string
   configured: boolean
+  contextWindow?: string
+  recommended?: boolean
+}
+
+const providerColors: Record<string, { bg: string; text: string; border: string }> = {
+  'aliyun': { bg: 'rgba(255, 111, 0, 0.15)', text: '#FF6F00', border: 'rgba(255, 111, 0, 0.3)' },
+  'deepseek': { bg: 'rgba(99, 102, 241, 0.15)', text: '#6366F1', border: 'rgba(99, 102, 241, 0.3)' },
+  'groq': { bg: 'rgba(34, 197, 94, 0.15)', text: '#22C55E', border: 'rgba(34, 197, 94, 0.3)' },
+  'openai': { bg: 'rgba(14, 165, 233, 0.15)', text: '#0EA5E9', border: 'rgba(14, 165, 233, 0.3)' },
+  'anthropic': { bg: 'rgba(139, 92, 246, 0.15)', text: '#8B5CF6', border: 'rgba(139, 92, 246, 0.3)' },
+}
+
+const providerNames: Record<string, string> = {
+  'aliyun': '阿里云',
+  'deepseek': '深度求索',
+  'groq': 'Groq',
+  'openai': 'OpenAI',
+  'anthropic': 'Anthropic',
 }
 
 const quickQuestions = [
@@ -39,6 +57,7 @@ export default function AiChatPage() {
   const [models, setModels] = useState<Model[]>([])
   const [selectedModel, setSelectedModel] = useState<Model | null>(null)
   const [showModelSelector, setShowModelSelector] = useState(false)
+  const [modelSearch, setModelSearch] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -244,40 +263,110 @@ export default function AiChatPage() {
           >
             <SettingsIcon size={18} />
             <span className={styles.modelName}>{selectedModel?.name || '选择模型'}</span>
-            <ChevronDownIcon size={16} className={styles.modelArrow} />
+            <ChevronDownIcon size={16} className={`${styles.modelArrow} ${showModelSelector ? styles.modelArrowOpen : ''}`} />
           </button>
           
           {showModelSelector && (
             <div className={styles.modelDropdown}>
-              <p className={styles.dropdownTitle}>选择AI模型</p>
+              <div className={styles.dropdownHeader}>
+                <p className={styles.dropdownTitle}>选择AI模型</p>
+                <button className={styles.dropdownClose} onClick={() => setShowModelSelector(false)}>✕</button>
+              </div>
+              
+              <div className={styles.modelSearchBox}>
+                <SearchIcon size={16} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  className={styles.modelSearchInput}
+                  placeholder="搜索模型..."
+                  value={modelSearch}
+                  onChange={(e) => setModelSearch(e.target.value)}
+                />
+              </div>
+              
               {models.length === 0 ? (
-                <p className={styles.noModels}>暂无可用模型</p>
+                <div className={styles.noModels}>
+                  <SparklesIcon size={32} className={styles.noModelsIcon} />
+                  <p>暂无可用模型</p>
+                  <p className={styles.noModelsSub}>请在后端配置API密钥</p>
+                </div>
               ) : (
-                models.map((model, index) => (
-                  <button
-                    key={index}
-                    className={`${styles.modelOption} ${selectedModel?.name === model.name ? styles.selected : ''}`}
-                    onClick={() => {
-                      setSelectedModel(model)
-                      setShowModelSelector(false)
-                    }}
-                  >
-                    <span className={styles.modelOptionName}>
-                      {model.name}
-                      {model.freeTier && <span className={styles.freeBadge}>免费额度</span>}
-                      {model.configured && <span className={styles.configuredBadge}>已配置</span>}
-                      {!model.configured && <span className={styles.notConfiguredBadge}>未配置</span>}
-                    </span>
-                    <span className={styles.modelOptionDesc}>{model.description}</span>
-                    {!model.configured && model.freeTier && (
-                      <span className={styles.modelSignUp}>
-                        <a href={model.signUpUrl} target="_blank" rel="noopener noreferrer">
-                          获取API密钥 →
-                        </a>
-                      </span>
-                    )}
-                  </button>
-                ))
+                <div className={styles.modelList}>
+                  {models.filter(model => 
+                    model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
+                    model.provider.toLowerCase().includes(modelSearch.toLowerCase()) ||
+                    model.description.toLowerCase().includes(modelSearch.toLowerCase())
+                  ).map((model, index) => {
+                    const colors = providerColors[model.provider] || providerColors['deepseek']
+                    return (
+                      <button
+                        key={index}
+                        className={`${styles.modelOption} ${selectedModel?.name === model.name ? styles.selected : ''}`}
+                        onClick={() => {
+                          if (model.configured) {
+                            setSelectedModel(model)
+                            setShowModelSelector(false)
+                            setModelSearch('')
+                          }
+                        }}
+                        disabled={!model.configured}
+                      >
+                        <div className={styles.modelOptionHeader}>
+                          <div 
+                            className={styles.providerBadge} 
+                            style={{ 
+                              backgroundColor: colors.bg, 
+                              color: colors.text,
+                              borderColor: colors.border 
+                            }}
+                          >
+                            {providerNames[model.provider] || model.provider}
+                          </div>
+                          {model.recommended && (
+                            <span className={styles.recommendedBadge}>
+                              <SparklesIcon size={12} />
+                              推荐
+                            </span>
+                          )}
+                          {model.freeTier && (
+                            <span className={styles.freeBadge}>
+                              <ZapIcon size={12} />
+                              免费
+                            </span>
+                          )}
+                        </div>
+                        
+                        <span className={styles.modelOptionName}>
+                          {model.name}
+                          {selectedModel?.name === model.name && (
+                            <CheckIcon size={16} className={styles.checkIcon} />
+                          )}
+                        </span>
+                        
+                        <span className={styles.modelOptionDesc}>{model.description}</span>
+                        
+                        <div className={styles.modelOptionFooter}>
+                          {model.contextWindow && (
+                            <span className={styles.contextWindow}>{model.contextWindow}</span>
+                          )}
+                          {model.configured ? (
+                            <span className={styles.configuredBadge}>✓ 已配置</span>
+                          ) : (
+                            <span className={styles.notConfiguredBadge}>! 未配置</span>
+                          )}
+                        </div>
+                        
+                        {!model.configured && model.freeTier && (
+                          <span className={styles.modelSignUp}>
+                            <a href={model.signUpUrl} target="_blank" rel="noopener noreferrer">
+                              立即获取API密钥 →
+                            </a>
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
               )}
             </div>
           )}

@@ -263,12 +263,54 @@
   font-size: var(--fs-md);
 }
 
-.forgotPassword {
-  text-align: right;
+.passwordField {
+  position: relative;
+}
+
+.passwordField input {
+  padding-right: var(--sp-12) !important;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: var(--sp-4);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: var(--sp-1);
+  transition: color var(--transition-fast);
+}
+
+.passwordToggle:hover {
+  color: var(--primary);
+}
+
+.loginOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: var(--sp-2);
 }
 
-.forgotPassword a {
+.rememberMe {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.rememberMe input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.forgotPasswordLink {
   font-size: var(--fs-xs);
   color: var(--text-secondary);
   text-decoration: none;
@@ -276,8 +318,52 @@
   transition: color var(--transition-fast);
 }
 
-.forgotPassword a:hover {
+.forgotPasswordLink:hover {
   color: var(--primary);
+}
+
+.socialButtons {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.socialButtons .socialBtn {
+  flex: 1;
+}
+
+.passwordStrength {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.strengthBar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.strengthFill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width var(--transition-normal), background-color var(--transition-normal);
+}
+
+.strengthText {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  min-width: 30px;
+  text-align: right;
+}
+
+.passwordMatchError {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--danger);
+  margin-top: var(--sp-1);
 }
 
 .success {
