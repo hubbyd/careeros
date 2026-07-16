@@ -1292,3 +1292,81 @@ export function VolumeXIcon({ className = '', size = 20, color = 'currentColor',
     </svg>
   )
 }
+
+export function CodeIcon({ className = '', size = 20, color = 'currentColor', strokeWidth = 2 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="16 18 22 12 16 6" />
+      <polyline points="8 6 2 12 8 18" />
+    </svg>
+  )
+}
+
+export function DatabaseIcon({ className = '', size = 20, color = 'currentColor', strokeWidth = 2 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+    </svg>
+  )
+}
+
+export function BrainIcon({ className = '', size = 20, color = 'currentColor', strokeWidth = 2 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 3.02 4.5 2.5 2.5 0 0 0 2.96-.47 2.5 2.5 0 0 0 2.96.47 2.5 2.5 0 0 0 3.02-4.5 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 4.5z" />
+      <path d="M12 10a2.5 2.5 0 0 0-4.96-.47 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 3.02 4.5 2.5 2.5 0 0 0 2.96-.46 2.5 2.5 0 0 0 2.96.46 2.5 2.5 0 0 0 3.02-4.5 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 10z" />
+      <path d="M12 15.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 3.02 4.5 2.5 2.5 0 0 0 2.96-.47 2.5 2.5 0 0 0 2.96.47 2.5 2.5 0 0 0 3.02-4.5 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 15.5z" />
+    </svg>
+  )
+}
+
+export function SmartphoneIcon({ className = '', size = 20, color = 'currentColor', strokeWidth = 2 }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+    </svg>
+  )
+}

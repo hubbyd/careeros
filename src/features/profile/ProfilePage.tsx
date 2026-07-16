@@ -307,6 +307,41 @@ export default function ProfilePage() {
     fileInputRef.current?.click()
   }
 
+  const compressImage = (file: File, maxWidth: number = 512, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+        const img = new Image()
+        img.src = event.target?.result as string
+        img.onload = () => {
+          let width = img.width
+          let height = img.height
+          
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+          
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height)
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
+            resolve(compressedDataUrl)
+          } else {
+            reject(new Error('无法压缩图片'))
+          }
+        }
+        img.onerror = () => reject(new Error('图片加载失败'))
+      }
+      reader.onerror = () => reject(new Error('文件读取失败'))
+    })
+  }
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -316,18 +351,25 @@ export default function ProfilePage() {
       return
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert('图片大小不能超过2MB')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string
+    try {
+      let base64: string
+      
+      if (file.size > 2 * 1024 * 1024) {
+        base64 = await compressImage(file, 512, 0.6)
+      } else {
+        base64 = await new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (event) => resolve(event.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+      }
+      
       setPreviewImage(base64)
       setEditData({ ...editData, avatar: base64 })
+    } catch (error) {
+      console.error('头像上传失败:', error)
+      alert('头像上传失败，请重试')
     }
-    reader.readAsDataURL(file)
   }
 
   const handleSave = async () => {

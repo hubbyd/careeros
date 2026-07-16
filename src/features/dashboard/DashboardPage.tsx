@@ -318,6 +318,10 @@ export default function DashboardPage() {
                 <BookIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>学习路线</span>
               </button>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/study')}>
+                <TrendingUpIcon size={28} className={styles.shortcutIcon} />
+                <span className={styles.shortcutLabel}>学习计划</span>
+              </button>
               <button className={styles.shortcutBtn} onClick={() => navigate('/interview')}>
                 <MessageIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>模拟面试</span>
@@ -326,21 +330,17 @@ export default function DashboardPage() {
                 <FileIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>简历优化</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => navigate('/study')}>
-                <TrendingUpIcon size={28} className={styles.shortcutIcon} />
-                <span className={styles.shortcutLabel}>学习计划</span>
-              </button>
               <button className={styles.shortcutBtn} onClick={() => navigate('/ai')}>
                 <MessageIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>AI助手</span>
               </button>
-              <button className={styles.shortcutBtn} onClick={() => navigate('/profile')}>
-                <ProfileIcon size={28} className={styles.shortcutIcon} />
-                <span className={styles.shortcutLabel}>个人中心</span>
-              </button>
               <button className={styles.shortcutBtn} onClick={() => navigate('/kanban')}>
                 <BriefcaseIcon size={28} className={styles.shortcutIcon} />
                 <span className={styles.shortcutLabel}>求职看板</span>
+              </button>
+              <button className={styles.shortcutBtn} onClick={() => navigate('/profile')}>
+                <ProfileIcon size={28} className={styles.shortcutIcon} />
+                <span className={styles.shortcutLabel}>个人中心</span>
               </button>
             </div>
           </Card>

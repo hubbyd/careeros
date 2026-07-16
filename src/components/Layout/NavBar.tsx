@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useUserStore } from '../../stores/useUserStore'
-import { HomeIcon, TargetIcon, KanbanIcon, AiIcon, InterviewIcon, LearningIcon, ProfileIcon, RocketIcon } from '../../components/Icons'
+import { HomeIcon, TargetIcon, KanbanIcon, AiIcon, InterviewIcon, LearningIcon, ProfileIcon, RocketIcon, BookIcon } from '../../components/Icons'
 import styles from './NavBar.module.css'
 
 type NavIcon = React.ReactNode
@@ -11,7 +11,8 @@ const navItems: { path: string; label: string; icon: NavIcon }[] = [
   { path: '/kanban', label: '求职看板', icon: <KanbanIcon size={20} /> },
   { path: '/ai', label: 'AI助手', icon: <AiIcon size={20} /> },
   { path: '/interview', label: '模拟面试', icon: <InterviewIcon size={20} /> },
-  { path: '/learning', label: '学习计划', icon: <LearningIcon size={20} /> },
+  { path: '/learning', label: '学习路线', icon: <LearningIcon size={20} /> },
+  { path: '/study', label: '学习计划', icon: <BookIcon size={20} /> },
   { path: '/profile', label: '个人中心', icon: <ProfileIcon size={20} /> },
 ]
 

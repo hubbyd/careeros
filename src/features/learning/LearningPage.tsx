@@ -4,9 +4,19 @@ import Card from '../../components/Card/Card'
 import Button from '../../components/Button/Button'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import Tag from '../../components/Tag/Tag'
-import { SearchIcon, BookIcon } from '../../components/Icons'
+import { SearchIcon, BookIcon, RocketIcon, CodeIcon, DatabaseIcon, CloudIcon, BrainIcon, SmartphoneIcon, PaletteIcon, BarChart3Icon } from '../../components/Icons'
 import type { LearningPlan } from '../../types'
 import styles from './LearningPage.module.css'
+
+const learningPaths = [
+  { id: 'frontend', title: '前端开发', icon: <CodeIcon size={24} />, color: '#6366F1', description: 'HTML/CSS/JS/React/Vue', jobs: ['前端工程师', 'Web开发', '全栈工程师'] },
+  { id: 'backend', title: '后端开发', icon: <DatabaseIcon size={24} />, color: '#10B981', description: 'Node.js/Python/Java/Go', jobs: ['后端工程师', 'API开发', '服务器开发'] },
+  { id: 'fullstack', title: '全栈开发', icon: <CloudIcon size={24} />, color: '#F59E0B', description: '前后端技术栈', jobs: ['全栈工程师', '全栈开发'] },
+  { id: 'ai', title: 'AI/算法', icon: <BrainIcon size={24} />, color: '#EC4899', description: '机器学习/深度学习', jobs: ['算法工程师', 'AI工程师', '数据科学家'] },
+  { id: 'mobile', title: '移动开发', icon: <SmartphoneIcon size={24} />, color: '#0EA5E9', description: 'React Native/Flutter/iOS/Android', jobs: ['移动端开发', 'App开发'] },
+  { id: 'design', title: 'UI/UX设计', icon: <PaletteIcon size={24} />, color: '#8B5CF6', description: 'Figma/设计系统', jobs: ['UI设计师', 'UX设计师'] },
+  { id: 'data', title: '数据分析', icon: <BarChart3Icon size={24} />, color: '#14B8A6', description: 'SQL/Python/可视化', jobs: ['数据分析师', 'BI工程师'] },
+]
 
 export default function LearningPage() {
   const [plans, setPlans] = useState<LearningPlan[]>([])
@@ -24,6 +34,19 @@ export default function LearningPage() {
     setIsLoading(true)
     try {
       const response = await learningApi.createPlan('前端开发工程师')
+      setPlans([response, ...plans])
+      setSelectedPlan(response)
+    } catch (error) {
+      console.error('创建计划失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCreatePlanWithPath = async (targetJob: string) => {
+    setIsLoading(true)
+    try {
+      const response = await learningApi.createPlan(targetJob)
       setPlans([response, ...plans])
       setSelectedPlan(response)
     } catch (error) {
@@ -62,6 +85,24 @@ export default function LearningPage() {
       <div className={styles.sectionHeader}>
         <h1 className={styles.sectionTitle}>📚 学习路线</h1>
         <p className={styles.sectionDesc}>探索适合你的学习路径</p>
+      </div>
+
+      <div className={styles.pathNavbar}>
+        <div className={styles.pathNavGrid}>
+          {learningPaths.map((path) => (
+            <button
+              key={path.id}
+              className={styles.pathNavItem}
+              onClick={() => handleCreatePlanWithPath(path.title)}
+            >
+              <div className={styles.pathNavIcon} style={{ backgroundColor: `${path.color}20`, color: path.color }}>
+                {path.icon}
+              </div>
+              <span className={styles.pathNavTitle}>{path.title}</span>
+              <span className={styles.pathNavDesc}>{path.description}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <Card className={styles.createCard}>
